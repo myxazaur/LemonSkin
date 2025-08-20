@@ -26,9 +26,15 @@ repositories {
         }
     }
     mavenLocal() // Must be last for caching to work
+
+    maven {
+        url "https://www.ryanliptak.com/maven/"
+    }
 }
 
 dependencies {
+    embed "applecore:AppleCore:1.12-2.2.2:api"
+
     // Include StripLatestForgeRequirements by default for the dev env, saves everyone a hassle
     runtimeOnly 'com.cleanroommc:strip-latest-forge-requirements:1.0'
     // Include OSXNarratorBlocker by default for the dev env, for M1+ Macs

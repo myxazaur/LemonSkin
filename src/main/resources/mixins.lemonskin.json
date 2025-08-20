@@ -1,7 +1,7 @@
 {
-	"package": "",
+	"package": "ua.myxazaur.lemonskin.mixin",
 	"required": true,
-	"refmap": "${mixin_refmap}",
+	"refmap": "mixins.lemonskin.refmap.json",
 	"target": "@env(DEFAULT)",
 	"minVersion": "0.8.5",
 	"compatibilityLevel": "JAVA_8",
