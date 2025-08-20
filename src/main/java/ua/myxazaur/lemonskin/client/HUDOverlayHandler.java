@@ -105,7 +105,7 @@ public class HUDOverlayHandler
 		// Apply scale for altered max hunger if necessary
 		if (LemonSkin.hasAppleCore)
 			foodValues = AppleCoreHelper.getFoodValuesForDisplay(foodValues, player);
-		drawHungerOverlay(foodValues.hunger, stats.getFoodLevel(), mc, left, top, flashAlpha);
+		drawHungerOverlay(foodValues.hunger, stats.getFoodLevel(), mc, left, top, flashAlpha, FoodHelper.isRotten(heldItem));
 
 		if (ModConfig.SHOW_SATURATION_OVERLAY)
 		{
@@ -147,7 +147,7 @@ public class HUDOverlayHandler
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 	}
 
-	public static void drawHungerOverlay(int hungerRestored, int foodLevel, Minecraft mc, int left, int top, float alpha)
+	public static void drawHungerOverlay(int hungerRestored, int foodLevel, Minecraft mc, int left, int top, float alpha, boolean isRotten)
 	{
 		if (hungerRestored == 0)
 			return;
@@ -164,9 +164,9 @@ public class HUDOverlayHandler
 			int x = left - i * 8 - 9;
 			int y = top;
 			int icon = 16;
-			int background = 13;
+			int background = 0; // in original version it was 13 by default btw
 
-			if (mc.player.isPotionActive(MobEffects.HUNGER))
+			if (mc.player.isPotionActive(MobEffects.HUNGER) || isRotten)
 			{
 				icon += 36;
 				background = 13;

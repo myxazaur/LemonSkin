@@ -80,6 +80,8 @@ public class TooltipOverlayHandler
 		if (defaultFoodValues.equals(modifiedFoodValues) && defaultFoodValues.hunger == 0)
 			return;
 
+		boolean isRotten = FoodHelper.isRotten(hoveredStack);
+
 		int biggestHunger = Math.max(defaultFoodValues.hunger, modifiedFoodValues.hunger);
 		float biggestSaturationIncrement = Math.max(defaultFoodValues.getSaturationIncrement(), modifiedFoodValues.getSaturationIncrement());
 
@@ -124,16 +126,19 @@ public class TooltipOverlayHandler
 
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 
+		int iconOffset = isRotten ? 36 : 0;
+		int background = isRotten ? 13 : 0;
+
 		for (int i = 0; i < barsNeeded * 2; i += 2)
 		{
 			x -= 9;
 
 			if (modifiedFoodValues.hunger < 0)
-				gui.drawTexturedModalRect(x, y, 34, 27, 9, 9);
+				gui.drawTexturedModalRect(x, y, 34 + iconOffset, 27, 9, 9);
 			else if (modifiedFoodValues.hunger > defaultFoodValues.hunger && defaultFoodValues.hunger <= i)
-				gui.drawTexturedModalRect(x, y, 133, 27, 9, 9);
+				gui.drawTexturedModalRect(x, y, 133 + iconOffset, 27, 9, 9);
 			else if (modifiedFoodValues.hunger > i + 1 || defaultFoodValues.hunger == modifiedFoodValues.hunger)
-				gui.drawTexturedModalRect(x, y, 16, 27, 9, 9);
+				gui.drawTexturedModalRect(x, y, 16 + background * 9, 27, 9, 9);
 			else if (modifiedFoodValues.hunger == i + 1)
 				gui.drawTexturedModalRect(x, y, 124, 27, 9, 9);
 			else
@@ -144,7 +149,7 @@ public class TooltipOverlayHandler
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 			if (modifiedFoodValues.hunger > i)
-				gui.drawTexturedModalRect(x, y, modifiedFoodValues.hunger - 1 == i ? 61 : 52, 27, 9, 9);
+				gui.drawTexturedModalRect(x, y, modifiedFoodValues.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
 		}
 		if (hungerText != null)
 		{
