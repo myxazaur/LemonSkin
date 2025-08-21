@@ -43,6 +43,11 @@ public class ModConfig
 	private static final String SHOW_FOOD_EXHAUSTION_UNDERLAY_COMMENT =
 			"If true, shows your food exhaustion as a progress bar behind the hunger bars";
 
+	public static boolean SHOW_VANILLA_ANIMATION_OVERLAY = true;
+	private static final String SHOW_VANILLA_ANIMATION_OVERLAY_NAME = "show.vanilla.animations.overlay";
+	private static final String SHOW_VANILLA_ANIMATION_OVERLAY_COMMENT =
+			"If true, hunger overlay will shake to match Minecraft's icon animations";
+
 	public static boolean SHOW_FOOD_DEBUG_INFO = true;
 	private static final String SHOW_FOOD_DEBUG_INFO_NAME = "show.food.stats.in.debug.overlay";
 	private static final String SHOW_FOOD_DEBUG_INFO_COMMENT =
@@ -77,6 +82,7 @@ public class ModConfig
 		SHOW_SATURATION_OVERLAY = config.get(CATEGORY_CLIENT, SHOW_SATURATION_OVERLAY_NAME, true, SHOW_SATURATION_OVERLAY_COMMENT).getBoolean(true);
 		SHOW_FOOD_VALUES_OVERLAY = config.get(CATEGORY_CLIENT, SHOW_FOOD_VALUES_OVERLAY_NAME, true, SHOW_FOOD_VALUES_OVERLAY_COMMENT).getBoolean(true);
 		SHOW_FOOD_EXHAUSTION_UNDERLAY = config.get(CATEGORY_CLIENT, SHOW_FOOD_EXHAUSTION_UNDERLAY_NAME, true, SHOW_FOOD_EXHAUSTION_UNDERLAY_COMMENT).getBoolean(true);
+		SHOW_VANILLA_ANIMATION_OVERLAY = config.get(CATEGORY_CLIENT, SHOW_VANILLA_ANIMATION_OVERLAY_NAME, true, SHOW_VANILLA_ANIMATION_OVERLAY_COMMENT).getBoolean(true);
 		SHOW_FOOD_DEBUG_INFO = config.get(CATEGORY_CLIENT, SHOW_FOOD_DEBUG_INFO_NAME, true, SHOW_FOOD_DEBUG_INFO_COMMENT).getBoolean(true);
 
 		if (config.hasChanged())

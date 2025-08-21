@@ -2,6 +2,7 @@ package ua.myxazaur.lemonskin.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
@@ -26,14 +28,19 @@ import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 
+import java.lang.reflect.Field;
+import java.util.Random;
+
 @SideOnly(Side.CLIENT)
 public class HUDOverlayHandler
 {
 	private float flashAlpha = 0f;
 	private byte alphaDir = 1;
 	protected int foodIconsOffset;
+	private static int updateCounter;
 
 	private static final ResourceLocation modIcons = new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
+	private static final Field UCField = ReflectionHelper.findField(GuiIngame.class, "updateCounter", "field_73837_f");
 
 	public static void init()
 	{
@@ -62,7 +69,13 @@ public class HUDOverlayHandler
 		int left = scale.getScaledWidth() / 2 + 91;
 		int top = scale.getScaledHeight() - foodIconsOffset;
 
-		drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
+        try {
+			updateCounter = UCField.getInt(mc.ingameGUI);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+
+        drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
 	}
 
 	@SubscribeEvent(priority=EventPriority.LOW)
@@ -147,29 +160,44 @@ public class HUDOverlayHandler
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 	}
 
-	public static void drawHungerOverlay(int hungerRestored, int foodLevel, Minecraft mc, int left, int top, float alpha, boolean isRotten)
-	{
+	public static void drawHungerOverlay(int hungerRestored, int foodLevel, Minecraft mc, int left, int top, float alpha, boolean isRotten) {
 		if (hungerRestored == 0)
 			return;
 
 		int startBar = foodLevel / 2;
 		int endBar = (int) Math.ceil(Math.min(20, foodLevel + hungerRestored) / 2f);
 		int barsNeeded = endBar - startBar;
+
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 
 		enableAlpha(alpha);
-		for (int i = startBar; i < startBar + barsNeeded; ++i)
-		{
+
+		Random localRand = new Random((long) updateCounter * 312871L); // Hardcoded random seed from GuiIngameForge
+
+		boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F &&
+				updateCounter % (foodLevel * 3 + 1) == 0 &&
+				ModConfig.SHOW_VANILLA_ANIMATION_OVERLAY;
+
+		if (shouldShake) {
+			for (int j = 0; j < startBar; j++) {
+				localRand.nextInt(3); // Dummy
+			}
+		}
+
+		for (int i = startBar; i < startBar + barsNeeded; ++i) {
 			int idx = i * 2 + 1;
 			int x = left - i * 8 - 9;
 			int y = top;
 			int icon = 16;
-			int background = 0; // in original version it was 13 by default btw
+			byte background = 0;
 
-			if (mc.player.isPotionActive(MobEffects.HUNGER) || isRotten)
-			{
+			if (mc.player.isPotionActive(MobEffects.HUNGER) || isRotten) {
 				icon += 36;
 				background = 13;
+			}
+
+			if (shouldShake) {
+				y = top + (localRand.nextInt(3) - 1);
 			}
 
 			mc.ingameGUI.drawTexturedModalRect(x, y, 16 + background * 9, 27, 9, 9);
