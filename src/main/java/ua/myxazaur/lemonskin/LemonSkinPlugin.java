@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+// Useless right now
+
 @IFMLLoadingPlugin.Name("LemonSkinPlugin")
 @IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
 public class LemonSkinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
