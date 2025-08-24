@@ -266,13 +266,16 @@ public class HUDOverlayHandler
 
 		Random rand = new Random((long) updateCounter * 312871L);
 
-		int start = (int) (current / 2.0F);
+		int start;
 		int end   = MathHelper.ceil(modified / 2.0F);
+
+		if ((int)current % 2 == 0) start = (int)(current / 2.0F);
+		else                       start = (int)Math.floor(current / 2.0F);
 
 		for (int i = start; i < end; i++) {
 			int row  = i / 10;
 			int x = left + (i % 10) * 8;
-			int y = top - row * 10;
+			int y = top - row * 8;
 
 			if (current <= 4.0F && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY) {
 				y += rand.nextInt(2);
