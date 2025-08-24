@@ -43,7 +43,7 @@ public class TooltipOverlayHandler
 		if (hoveredStack == null || hoveredStack.isEmpty())
 			return;
 
-		boolean shouldShowTooltip = (ModConfig.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) || ModConfig.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
+		boolean shouldShowTooltip = (ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) || ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
 		if (!shouldShowTooltip)
 			return;
 

@@ -8,8 +8,11 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.FoodStats;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.client.GuiIngameForge;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,6 +29,7 @@ import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.ModInfo;
 import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
+import ua.myxazaur.lemonskin.helpers.HealthHelper;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 
 import java.lang.reflect.Field;
@@ -36,7 +40,7 @@ public class HUDOverlayHandler
 {
 	private float flashAlpha = 0f;
 	private byte alphaDir = 1;
-	protected int foodIconsOffset;
+	protected int iconsOffset;
 	private static int updateCounter;
 
 	private static final ResourceLocation modIcons = new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
@@ -50,15 +54,9 @@ public class HUDOverlayHandler
 	@SubscribeEvent(priority=EventPriority.LOW)
 	public void onPreRender(RenderGameOverlayEvent.Pre event)
 	{
-		if (event.getType() != RenderGameOverlayEvent.ElementType.FOOD)
-			return;
-
-		foodIconsOffset = GuiIngameForge.right_height;
+		iconsOffset = GuiIngameForge.right_height;
 
 		if (event.isCanceled())
-			return;
-
-		if (!ModConfig.SHOW_FOOD_EXHAUSTION_UNDERLAY)
 			return;
 
 		Minecraft mc = Minecraft.getMinecraft();
@@ -66,65 +64,103 @@ public class HUDOverlayHandler
 
 		ScaledResolution scale = event.getResolution();
 
-		int left = scale.getScaledWidth() / 2 + 91;
-		int top = scale.getScaledHeight() - foodIconsOffset;
+		if (event.getType() == RenderGameOverlayEvent.ElementType.FOOD)
+		{
+			if (!ModConfig.CLIENT.SHOW_FOOD_EXHAUSTION_UNDERLAY)
+				return;
 
-        try {
-			updateCounter = UCField.getInt(mc.ingameGUI);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
+			int left = scale.getScaledWidth() / 2 + 91;
+			int top = scale.getScaledHeight() - iconsOffset;
 
-        drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
+			drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
+		}
+
+		if (
+				event.getType() == RenderGameOverlayEvent.ElementType.HEALTH ||
+				event.getType() == RenderGameOverlayEvent.ElementType.FOOD
+		)
+		{
+			try {
+				updateCounter = UCField.getInt(mc.ingameGUI);
+			} catch (IllegalAccessException e) {
+				throw new RuntimeException(e);
+			}
+		}
 	}
 
 	@SubscribeEvent(priority=EventPriority.LOW)
 	public void onRender(RenderGameOverlayEvent.Post event)
 	{
-		if (event.getType() != RenderGameOverlayEvent.ElementType.FOOD)
-			return;
 
 		if (event.isCanceled())
 			return;
 
-		if (!ModConfig.SHOW_FOOD_VALUES_OVERLAY && !ModConfig.SHOW_SATURATION_OVERLAY)
-			return;
-
 		Minecraft mc = Minecraft.getMinecraft();
 		EntityPlayer player = mc.player;
-		ItemStack heldItem = player.getHeldItemMainhand();
-		if(!FoodHelper.isFood(heldItem))
-			heldItem = player.getHeldItemOffhand();
-		FoodStats stats = player.getFoodStats();
-
 		ScaledResolution scale = event.getResolution();
 
-		int left = scale.getScaledWidth() / 2 + 91;
-		int top = scale.getScaledHeight() - foodIconsOffset;
+		if (event.getType() == RenderGameOverlayEvent.ElementType.HEALTH) {
+			if (!shouldShowEstimatedHealth(mc.player))
+				return;
 
-		// saturation overlay
-		if (ModConfig.SHOW_SATURATION_OVERLAY)
-			drawSaturationOverlay(0, stats.getSaturationLevel(), mc, left, top, 1f);
+			ItemStack held = player.getHeldItemMainhand();
+			if (!FoodHelper.isFood(held))
+				held = player.getHeldItemOffhand();
+			if (held.isEmpty() || !FoodHelper.isFood(held))
+				return;
 
-		if (!ModConfig.SHOW_FOOD_VALUES_OVERLAY || heldItem.isEmpty() || !FoodHelper.isFood(heldItem))
-		{
-			flashAlpha = 0;
-			alphaDir = 1;
-			return;
+			FoodHelper.BasicFoodValues foodValues = FoodHelper.getModifiedFoodValues(held, player);
+			PotionEffect effect = FoodHelper.getEffect(held);
+			float heal = HealthHelper.getEstimatedHealthIncrement(player, foodValues, effect);
+
+			if (heal <= 0) return;
+
+			float currentHealth = player.getHealth();
+			float newHealth = Math.min(currentHealth + heal, player.getMaxHealth());
+
+			int left = event.getResolution().getScaledWidth()  / 2 - 91;
+			int top  = event.getResolution().getScaledHeight() - iconsOffset;
+
+			drawHealthOverlay(currentHealth, newHealth, mc, left, top, flashAlpha);
 		}
 
-		// restored hunger/saturation overlay while holding food
-		FoodHelper.BasicFoodValues foodValues = FoodHelper.getModifiedFoodValues(heldItem, player);
-		// Apply scale for altered max hunger if necessary
-		if (LemonSkin.hasAppleCore)
-			foodValues = AppleCoreHelper.getFoodValuesForDisplay(foodValues, player);
-		drawHungerOverlay(foodValues.hunger, stats.getFoodLevel(), mc, left, top, flashAlpha, FoodHelper.isRotten(heldItem));
-
-		if (ModConfig.SHOW_SATURATION_OVERLAY)
+		if (event.getType() == RenderGameOverlayEvent.ElementType.FOOD)
 		{
-			int newFoodValue = stats.getFoodLevel() + foodValues.hunger;
-			float newSaturationValue = stats.getSaturationLevel() + foodValues.getSaturationIncrement();
-			drawSaturationOverlay(newSaturationValue > newFoodValue ? newFoodValue - stats.getSaturationLevel() : foodValues.getSaturationIncrement(), stats.getSaturationLevel(), mc, left, top, flashAlpha);
+			if (!ModConfig.CLIENT.SHOW_FOOD_VALUES_OVERLAY && !ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
+				return;
+
+			ItemStack heldItem = player.getHeldItemMainhand();
+			if(!FoodHelper.isFood(heldItem))
+				heldItem = player.getHeldItemOffhand();
+			FoodStats stats = player.getFoodStats();
+
+			int left = scale.getScaledWidth() / 2 + 91;
+			int top = scale.getScaledHeight() - iconsOffset;
+
+			// saturation overlay
+			if (ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
+				drawSaturationOverlay(0, stats.getSaturationLevel(), mc, left, top, 1f);
+
+			if (!ModConfig.CLIENT.SHOW_FOOD_VALUES_OVERLAY || heldItem.isEmpty() || !FoodHelper.isFood(heldItem))
+			{
+				flashAlpha = 0;
+				alphaDir = 1;
+				return;
+			}
+
+			// restored hunger/saturation overlay while holding food
+			FoodHelper.BasicFoodValues foodValues = FoodHelper.getModifiedFoodValues(heldItem, player);
+			// Apply scale for altered max hunger if necessary
+			if (LemonSkin.hasAppleCore)
+				foodValues = AppleCoreHelper.getFoodValuesForDisplay(foodValues, player);
+			drawHungerOverlay(foodValues.hunger, stats.getFoodLevel(), mc, left, top, flashAlpha, FoodHelper.isRotten(heldItem));
+
+			if (ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
+			{
+				int newFoodValue = stats.getFoodLevel() + foodValues.hunger;
+				float newSaturationValue = stats.getSaturationLevel() + foodValues.getSaturationIncrement();
+				drawSaturationOverlay(newSaturationValue > newFoodValue ? newFoodValue - stats.getSaturationLevel() : foodValues.getSaturationIncrement(), stats.getSaturationLevel(), mc, left, top, flashAlpha);
+			}
 		}
 	}
 
@@ -176,7 +212,7 @@ public class HUDOverlayHandler
 
 		boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F &&
 				updateCounter % (foodLevel * 3 + 1) == 0 &&
-				ModConfig.SHOW_VANILLA_ANIMATION_OVERLAY;
+				ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
 
 		if (shouldShake) {
 			for (int j = 0; j < startBar; j++) {
@@ -210,6 +246,50 @@ public class HUDOverlayHandler
 		disableAlpha(alpha);
 	}
 
+	// BETA
+	public static void drawHealthOverlay(float current, float modified, Minecraft mc, int left, int top, float alpha) {
+		if (modified <= current) return;
+
+		mc.getTextureManager().bindTexture(Gui.ICONS);
+
+		EntityPlayer player = mc.player;
+		int healthTarget  = MathHelper.ceil(modified);
+
+		boolean hardcore = mc.world.getWorldInfo().isHardcoreModeEnabled();
+		int topOffset = hardcore ? 45 : 0;
+
+		int margin = 16;
+		if (player.isPotionActive(MobEffects.POISON))      margin += 36;
+		else if (player.isPotionActive(MobEffects.WITHER)) margin += 72;
+
+		enableAlpha(alpha);
+
+		Random rand = new Random((long) updateCounter * 312871L);
+
+		int start = (int) (current / 2.0F);
+		int end   = MathHelper.ceil(modified / 2.0F);
+
+		for (int i = start; i < end; i++) {
+			int row  = i / 10;
+			int x = left + (i % 10) * 8;
+			int y = top - row * 10;
+
+			if (current <= 4.0F && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY) {
+				y += rand.nextInt(2);
+			}
+
+			// Background
+			mc.ingameGUI.drawTexturedModalRect(x, y, 16, topOffset, 9, 9);
+
+			// Heart
+			boolean isHalf = (i * 2 + 1) == healthTarget;
+			int u = isHalf ? margin + 45 : margin + 36;
+			mc.ingameGUI.drawTexturedModalRect(x, y, u, topOffset, 9, 9);
+		}
+
+		disableAlpha(alpha);
+	}
+
 	public static void drawExhaustionOverlay(float exhaustion, Minecraft mc, int left, int top, float alpha)
 	{
 		mc.getTextureManager().bindTexture(modIcons);
@@ -226,6 +306,23 @@ public class HUDOverlayHandler
 
 		// rebind default icons
 		mc.getTextureManager().bindTexture(Gui.ICONS);
+	}
+
+	private boolean shouldShowEstimatedHealth(EntityPlayer player) {
+		if (!ModConfig.CLIENT.SHOW_FOOD_HEALTH_HUD_OVERLAY) return false;
+
+		if (player.world.getDifficulty() == EnumDifficulty.PEACEFUL)
+			return false;
+
+		FoodStats stats = player.getFoodStats();
+		if (stats.getFoodLevel() >= 18)
+			return false;
+
+		if (player.isPotionActive(MobEffects.POISON))   return false;
+		if (player.isPotionActive(MobEffects.WITHER))   return false;
+		if (player.isPotionActive(MobEffects.REGENERATION)) return false;
+
+		return true;
 	}
 
 	public static void enableAlpha(float alpha)

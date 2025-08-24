@@ -1,0 +1,19 @@
+# Config GUI
+show.food.values.in.tooltip=Показывать значения еды в подсказке
+show.food.values.in.tooltip.always=Всегда показывать значения еды
+show.saturation.hud.overlay=Показывать насыщение в HUD
+show.food.values.hud.overlay=Показывать значения еды в HUD
+show.food.exhaustion.hud.underlay=Показывать истощение в HUD
+show.food.health.hud.overlay=Показывать здоровье в HUD
+show.vanilla.animations.overlay=Показывать анимации ванилы
+show.food.stats.in.debug.overlay=Показывать статистику еды в F3
+
+# Tooltips
+show.food.values.in.tooltip.tooltip=Если включено, показывает значения голода и насыщения еды в подсказке при зажатии SHIFT
+show.food.values.in.tooltip.always.tooltip=Если включено, автоматически показывает значения голода и насыщения еды в подсказке (без необходимости зажимать SHIFT)
+show.saturation.hud.overlay.tooltip=Если включено, показывает ваш текущий уровень насыщения поверх полосок голода
+show.food.values.hud.overlay.tooltip=Если включено, показывает голод (и насыщение), которые будут восстановлены едой, которую вы держите
+show.food.exhaustion.hud.underlay.tooltip=Если включено, показывает ваше истощение в виде прогресс-бара за полосками голода
+show.food.health.hud.overlay.tooltip=Если включено, отображает примерное количество здоровья, восстановленного едой, на шкале здоровья
+show.vanilla.animations.overlay.tooltip=Если включено, полоски голода и здоровья будут трястись в соответствии с анимациями Minecraft
+show.food.stats.in.debug.overlay.tooltip=Если включено, добавляет строку с вашим голодом, насыщением и истощением в отладочном меню F3

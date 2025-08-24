@@ -1,0 +1,19 @@
+# Config GUI
+show.food.values.in.tooltip=Show Food Values in Tooltip
+show.food.values.in.tooltip.always=Show Food Values Always
+show.saturation.hud.overlay=Show Saturation HUD
+show.food.values.hud.overlay=Show Food Values HUD
+show.food.exhaustion.hud.underlay=Show Exhaustion Underlay
+show.food.health.hud.overlay=Show Food Health HUD Overlay
+show.vanilla.animations.overlay=Show Vanilla Animations
+show.food.stats.in.debug.overlay=Show Food Stats in F3
+
+# Tooltips
+show.food.values.in.tooltip.tooltip=If true, shows the hunger and saturation values of food in its tooltip while holding SHIFT
+show.food.values.in.tooltip.always.tooltip=If true, shows the hunger and saturation values of food in its tooltip automatically (without needing to hold SHIFT)
+show.saturation.hud.overlay.tooltip=If true, shows your current saturation level overlayed on the hunger bar
+show.food.values.hud.overlay.tooltip=If true, shows the hunger (and saturation) that would be restored by food you are currently holding
+show.food.exhaustion.hud.underlay.tooltip=If true, shows your food exhaustion as a progress bar behind the hunger bars
+show.food.health.hud.overlay.tooltip=If true, shows estimated health restored by food on the health bar
+show.vanilla.animations.overlay.tooltip=If true, hunger and health overlay will shake to match Minecraft's icon animations
+show.food.stats.in.debug.overlay.tooltip=If true, adds a line that shows your hunger, saturation, and exhaustion level in the F3 debug overlay

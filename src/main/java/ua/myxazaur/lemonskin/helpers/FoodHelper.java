@@ -59,14 +59,19 @@ public class FoodHelper
 
 	public static boolean isRotten(ItemStack itemStack)
 	{
+		PotionEffect effect = getEffect(itemStack);
+        return effect != null && effect.getPotion() == MobEffects.HUNGER;
+    }
+
+	public static PotionEffect getEffect(ItemStack itemStack) {
 		if (itemStack == null || itemStack.isEmpty())
 		{
-			return false;
+			return null;
 		}
 
 		if (!(isFood(itemStack)))
 		{
-			return false;
+			return null;
 		}
 
 		ItemFood itemFood = (ItemFood) itemStack.getItem();
@@ -77,18 +82,17 @@ public class FoodHelper
 					ItemFood.class, "potionId", "field_77851_ca");
 			potionIdField.setAccessible(true);
 
-			PotionEffect effect = (PotionEffect) potionIdField.get(itemFood);
-			return effect != null && effect.getPotion() == MobEffects.HUNGER;
+			return (PotionEffect) potionIdField.get(itemFood);
 		}
 		catch (IllegalAccessException | IllegalArgumentException e)
 		{
-			LemonSkin.Log.error("Error checking if food is rotten from ItemStack", e);
-			return false;
+			LemonSkin.Log.error("Error getting effects from food", e);
+			return null;
 		}
 		catch (Exception e)
 		{
-			LemonSkin.Log.warn("Could not access potionId field for rotten food check");
-			return false;
+			LemonSkin.Log.warn("Could not access potionId field for effects");
+			return null;
 		}
 	}
 

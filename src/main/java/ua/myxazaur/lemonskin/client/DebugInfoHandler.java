@@ -30,7 +30,7 @@ public class DebugInfoHandler
 		if (textEvent.getType() != RenderGameOverlayEvent.ElementType.TEXT)
 			return;
 
-		if (!ModConfig.SHOW_FOOD_DEBUG_INFO)
+		if (!ModConfig.CLIENT.SHOW_FOOD_DEBUG_INFO)
 			return;
 
 		Minecraft mc = Minecraft.getMinecraft();

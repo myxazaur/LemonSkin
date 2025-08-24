@@ -1,5 +1,6 @@
 package ua.myxazaur.lemonskin;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -18,13 +19,18 @@ public class LemonSkin {
 
     public static Logger Log = LogManager.getLogger(ModInfo.MODID);
     public static boolean hasAppleCore = false;
+    public static boolean hasAppleSkin = false;
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event)
     {
         hasAppleCore = Loader.isModLoaded("AppleCore") || Loader.isModLoaded("applecore");
-        ModConfig.init(event.getSuggestedConfigurationFile());
+        hasAppleSkin = Loader.isModLoaded("AppleSkin") || Loader.isModLoaded("appleskin");
+
+        MinecraftForge.EVENT_BUS.register(new ModConfig());
         BetterWithModsHelper.init();
+
+        if (hasAppleSkin) Log.warn("AppleSkin detected. Better remove it");
     }
 
     @Mod.EventHandler
