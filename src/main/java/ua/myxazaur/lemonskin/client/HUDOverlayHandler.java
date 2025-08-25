@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
@@ -110,7 +111,17 @@ public class HUDOverlayHandler
 				return;
 
 			FoodHelper.BasicFoodValues foodValues = FoodHelper.getModifiedFoodValues(held, player);
+
 			PotionEffect effect = FoodHelper.getEffect(held);
+			// Hardcode for golden apple
+			if (held.getItem() == Items.GOLDEN_APPLE)
+			{
+				if (held.getMetadata() > 0) effect =
+						new PotionEffect(MobEffects.REGENERATION, 400, 1);
+				else    new PotionEffect(MobEffects.REGENERATION, 100, 1);
+
+			}
+
 			float heal = HealthHelper.getEstimatedHealthIncrement(player, foodValues, effect);
 
 			if (heal <= 0) return;
@@ -264,20 +275,29 @@ public class HUDOverlayHandler
 
 		enableAlpha(alpha);
 
-		Random rand = new Random((long) updateCounter * 312871L);
-
 		int start;
 		int end   = MathHelper.ceil(modified / 2.0F);
 
 		if ((int)current % 2 == 0) start = (int)(current / 2.0F);
 		else                       start = (int)Math.floor(current / 2.0F);
 
+		float healthMax = player.getMaxHealth();
+		float absorb = player.getAbsorptionAmount();
+		int totalHearts = MathHelper.ceil((healthMax + absorb) / 2.0F);
+
+		boolean shouldShake = current <= 4.0F && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
+
 		for (int i = start; i < end; i++) {
 			int row  = i / 10;
 			int x = left + (i % 10) * 8;
 			int y = top - row * 8;
 
-			if (current <= 4.0F && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY) {
+			if (shouldShake) {
+				Random rand = new Random((long) updateCounter * 312871L);
+				int skips = totalHearts - 1 - i;
+				for (int j = 0; j < skips; j++) {
+					rand.nextInt(2);
+				}
 				y += rand.nextInt(2);
 			}
 
