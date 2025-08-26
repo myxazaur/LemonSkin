@@ -98,41 +98,66 @@ public class TooltipOverlayHandler
 			saturationBarsNeeded = 1;
 
 		int toolTipBottomY = toolTipY + toolTipH + 1 + TOOLTIP_REAL_HEIGHT_OFFSET_BOTTOM;
-		int toolTipRightX = toolTipX + toolTipW + 1 + TOOLTIP_REAL_WIDTH_OFFSET_RIGHT;
 
 		boolean shouldDrawBelow = toolTipBottomY + 20 < scale.getScaledHeight() - 3;
-
-		int rightX = toolTipRightX - 3;
-		int leftX = rightX - (Math.max(barsNeeded * 9 + (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f), saturationBarsNeeded * 6 + (int) (mc.fontRenderer.getStringWidth(saturationText) * 0.75f))) - 3;
 		int topY = (shouldDrawBelow ? toolTipBottomY : toolTipY - 20 + TOOLTIP_REAL_HEIGHT_OFFSET_TOP);
 		int bottomY = topY + 19;
 
+		int hungerIconsWidth = barsNeeded * 9;
+		int saturationIconsWidth = saturationBarsNeeded * 6;
+
+		int hungerTextWidthScaled = 0;
+		if (hungerText != null) {
+			hungerTextWidthScaled = (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f);
+		}
+		int saturationTextWidthScaled = 0;
+		if (saturationText != null) {
+			saturationTextWidthScaled = (int) (mc.fontRenderer.getStringWidth(saturationText) * 0.75f);
+		}
+
+		int hungerLineWidth = hungerIconsWidth + (hungerTextWidthScaled > 0 ? hungerTextWidthScaled + 2 : 0); // +2 пикселя между иконками и текстом
+		int saturationLineWidth = saturationIconsWidth + (saturationTextWidthScaled > 0 ? saturationTextWidthScaled + 2 : 0);
+
+		int contentWidth = Math.max(hungerLineWidth, saturationLineWidth);
+		int overlayWidth = contentWidth + 6;
+
+		int minLeftX = toolTipX;
+		int maxRightX = toolTipX + toolTipW;
+
+		int rightX = maxRightX;
+		int leftX = rightX - overlayWidth;
+
+		boolean needsTopBorder = false;
+		if (leftX < minLeftX) {
+			leftX = minLeftX;
+			rightX = leftX + overlayWidth;
+			needsTopBorder = true;
+		}
+
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
-
-		// bg
 		Gui.drawRect(leftX - 1, topY, rightX + 1, bottomY, 0xF0100010);
 		Gui.drawRect(leftX, (shouldDrawBelow ? bottomY : topY - 1), rightX, (shouldDrawBelow ? bottomY + 1 : topY), 0xF0100010);
+		if (needsTopBorder || !shouldDrawBelow) {
+			Gui.drawRect(leftX, (shouldDrawBelow ? topY - 1 : bottomY), rightX, (shouldDrawBelow ? topY : bottomY + 1), 0xF0100010);
+		}
 		Gui.drawRect(leftX, topY, rightX, bottomY, 0x66FFFFFF);
-
 		// drawRect disables blending and modifies color, so reset them
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		int x = rightX - 2;
+		int leftPadding = 3;
+
+		int x = leftX + leftPadding;
 		int startX = x;
 		int y = bottomY - 18;
 
 		mc.getTextureManager().bindTexture(Gui.ICONS);
-
 		int iconOffset = isRotten ? 36 : 0;
 		int background = isRotten ? 13 : 0;
-
 		for (int i = 0; i < barsNeeded * 2; i += 2)
 		{
-			x -= 9;
-
 			if (modifiedFoodValues.hunger < 0)
 				gui.drawTexturedModalRect(x, y, 34 + iconOffset, 27, 9, 9);
 			else if (modifiedFoodValues.hunger > defaultFoodValues.hunger && defaultFoodValues.hunger <= i)
@@ -143,55 +168,50 @@ public class TooltipOverlayHandler
 				gui.drawTexturedModalRect(x, y, 124, 27, 9, 9);
 			else
 				gui.drawTexturedModalRect(x, y, 34, 27, 9, 9);
-
 			GlStateManager.color(1.0F, 1.0F, 1.0F, .25F);
 			gui.drawTexturedModalRect(x, y, defaultFoodValues.hunger - 1 == i ? 115 : 106, 27, 9, 9);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
 			if (modifiedFoodValues.hunger > i)
 				gui.drawTexturedModalRect(x, y, modifiedFoodValues.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
+
+			x += 9;
 		}
 		if (hungerText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
-			mc.fontRenderer.drawStringWithShadow(hungerText, x * 4 / 3 - mc.fontRenderer.getStringWidth(hungerText) + 2, y * 4 / 3 + 2, 0xFFDDDDDD);
+			mc.fontRenderer.drawStringWithShadow(hungerText, (x + 2) * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
 		y += 10;
 		x = startX;
+
 		float modifiedSaturationIncrement = modifiedFoodValues.getSaturationIncrement();
 		float absModifiedSaturationIncrement = Math.abs(modifiedSaturationIncrement);
-
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.getTextureManager().bindTexture(modIcons);
 		for (int i = 0; i < saturationBarsNeeded * 2; i += 2)
 		{
 			float effectiveSaturationOfBar = (absModifiedSaturationIncrement - i) / 2f;
-
-			x -= 6;
-
-			boolean shouldBeFaded = absModifiedSaturationIncrement <= i;
-			if (shouldBeFaded)
+			if (absModifiedSaturationIncrement <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, .5F);
-
 			gui.drawTexturedModalRect(x, y, effectiveSaturationOfBar >= 1 ? 21 : effectiveSaturationOfBar > 0.5 ? 14 : effectiveSaturationOfBar > 0.25 ? 7 : effectiveSaturationOfBar > 0 ? 0 : 28, modifiedSaturationIncrement >= 0 ? 27 : 34, 7, 7);
-
-			if (shouldBeFaded)
+			if (absModifiedSaturationIncrement <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+			x += 6;
 		}
 		if (saturationText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
-			mc.fontRenderer.drawStringWithShadow(saturationText, x * 4 / 3 - mc.fontRenderer.getStringWidth(saturationText) + 2, y * 4 / 3 + 1, 0xFFDDDDDD);
+			mc.fontRenderer.drawStringWithShadow(saturationText, (x + 2) * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
 		GlStateManager.disableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-
 		// reset to drawHoveringText state
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
