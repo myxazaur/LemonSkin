@@ -185,11 +185,27 @@ public class HUDOverlayHandler
 		int barsNeeded = endBar - startBar;
 		mc.getTextureManager().bindTexture(modIcons);
 
+		Random localRand = new Random((long) updateCounter * 312871L); // Hardcoded random seed from GuiIngameForge
+		boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F &&
+				updateCounter % (mc.player.getFoodStats().getFoodLevel() * 3 + 1) == 0 &&
+				ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
+
+		if (shouldShake) {
+			for (int j = 0; j < startBar; j++) {
+				localRand.nextInt(3); // Dummy
+			}
+		}
+
 		enableAlpha(alpha);
 		for (int i = startBar; i < startBar + barsNeeded; ++i)
 		{
 			int x = left - i * 8 - 9;
 			int y = top;
+
+			if (shouldShake) {
+				y = top + (localRand.nextInt(3) - 1);
+			}
+
 			float effectiveSaturationOfBar = (saturationLevel + saturationGained) / 2 - i;
 
 			if (effectiveSaturationOfBar >= 1)
