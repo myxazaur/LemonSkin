@@ -117,8 +117,8 @@ public class HUDOverlayHandler
 			if (held.getItem() == Items.GOLDEN_APPLE)
 			{
 				if (held.getMetadata() > 0) effect =
-						new PotionEffect(MobEffects.REGENERATION, 400, 1);
-				else    new PotionEffect(MobEffects.REGENERATION, 100, 1);
+						      new PotionEffect(MobEffects.REGENERATION, 400, 1);
+				else effect = new PotionEffect(MobEffects.REGENERATION, 100, 1);
 
 			}
 
