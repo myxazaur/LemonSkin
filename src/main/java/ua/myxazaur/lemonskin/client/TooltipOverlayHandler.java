@@ -12,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -45,7 +46,7 @@ public class TooltipOverlayHandler
 	/* ------------------------------------------------------------------ */
 	/* 1)  Inject blank lines so Forge reserves space (Modern mode only)  */
 	/* ------------------------------------------------------------------ */
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onItemTooltip(net.minecraftforge.event.entity.player.ItemTooltipEvent event)
 	{
 		if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
@@ -92,7 +93,7 @@ public class TooltipOverlayHandler
 	/* ------------------------------------------------------------------ */
 	/* 2)  Actual rendering                                               */
 	/* ------------------------------------------------------------------ */
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onRenderTooltip(RenderTooltipEvent.PostText event)
 	{
 		ItemStack stack = event.getStack();
