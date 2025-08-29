@@ -79,8 +79,8 @@ public class TooltipOverlayHandler
 		int satBars    = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
 
 		float scale = 2.2f;
-		float hungerLen = hungerBars * scale + (hungerBars > 10 ? 3 : 0);
-		float satLen    = satBars    * scale * 0.8f + (satBars > 10 ? 3 : 0);
+		float hungerLen = hungerBars < 10 ? hungerBars * scale : 2;
+		float satLen    = satBars < 10 ? satBars * scale * 0.8f : 2;
 		int spacesNeeded = (int) Math.ceil(Math.max(hungerLen, satLen));
 
 		StringBuilder sb = new StringBuilder(" ");
