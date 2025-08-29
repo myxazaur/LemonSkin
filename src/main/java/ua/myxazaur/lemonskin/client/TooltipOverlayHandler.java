@@ -33,6 +33,7 @@ public class TooltipOverlayHandler
 {
 	private static final ResourceLocation MOD_ICONS =
 			new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
+	private ItemStack stack;
 
 	/* Legacy constants -------------------------------------------------- */
 	private static final int LEGACY_BOTTOM_OFFSET = 3;
@@ -54,6 +55,7 @@ public class TooltipOverlayHandler
 
 		ItemStack stack = event.getItemStack();
 		if (stack == null || stack.isEmpty()) return;
+		this.stack = stack;
 
 		boolean shouldShow =
 				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
@@ -98,7 +100,10 @@ public class TooltipOverlayHandler
 	public void onRenderTooltip(RenderTooltipEvent.PostText event)
 	{
 		ItemStack stack = event.getStack();
-		if (stack == null || stack.isEmpty()) return;
+		if (stack == null || stack.isEmpty()) {
+			// Forge gives empty ItemStack if tooltip rendering called from recipe book method
+			stack = this.stack;
+		};
 
 		boolean shouldShow =
 				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
