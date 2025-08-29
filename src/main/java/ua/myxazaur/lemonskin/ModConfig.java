@@ -30,7 +30,7 @@ public class ModConfig {
 		@Config.Name("Show Food Values in Tooltip Always")
 		@Config.LangKey("show.food.values.in.tooltip.always")
 		@Config.Comment("If true, shows the hunger and saturation values of food in its tooltip automatically (without needing to hold SHIFT)")
-		public boolean ALWAYS_SHOW_FOOD_VALUES_TOOLTIP = false;
+		public boolean ALWAYS_SHOW_FOOD_VALUES_TOOLTIP = true;
 
 		@Config.Name("Show Saturation HUD Overlay")
 		@Config.LangKey("show.saturation.hud.overlay")
