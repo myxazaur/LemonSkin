@@ -17,6 +17,11 @@ public class ModConfig {
 
 	public static class ClientCategory {
 
+		@Config.Name("Use Modern Tooltip Rendering")
+		@Config.LangKey("use.modern.tooltip")
+		@Config.Comment("true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)")
+		public boolean USE_MODERN_TOOLTIP = true;
+
 		@Config.Name("Show Food Values in Tooltip")
 		@Config.LangKey("show.food.values.in.tooltip")
 		@Config.Comment("If true, shows the hunger and saturation values of food in its tooltip while holding SHIFT")

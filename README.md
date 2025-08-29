@@ -11,9 +11,10 @@ Its main goals are:
 ---
 ### ⚙️ Features
 
-* Adds food value information to tooltips:
+* Adds food value information to tooltips. LemonSkin has two tooltip rendering modes <br>
+Legacy and Modern:
 
-![](https://i.imgur.com/furoAAi.png)
+![](https://i.imgur.com/furoAAi.png) ![](https://i.imgur.com/YksBaUx.png)
 
 * Adds a visualization of saturation and exhaustion to the HUD:
 

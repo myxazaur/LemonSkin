@@ -1,4 +1,5 @@
 # Config GUI
+use.modern.tooltip=Use Modern Tooltip Rendering
 show.food.values.in.tooltip=Show Food Values in Tooltip
 show.food.values.in.tooltip.always=Show Food Values Always
 show.saturation.hud.overlay=Show Saturation HUD
@@ -9,6 +10,7 @@ show.vanilla.animations.overlay=Show Vanilla Animations
 show.food.stats.in.debug.overlay=Show Food Stats in F3
 
 # Tooltips
+use.modern.tooltip.tooltip=true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)
 show.food.values.in.tooltip.tooltip=If true, shows the hunger and saturation values of food in its tooltip while holding SHIFT
 show.food.values.in.tooltip.always.tooltip=If true, shows the hunger and saturation values of food in its tooltip automatically (without needing to hold SHIFT)
 show.saturation.hud.overlay.tooltip=If true, shows your current saturation level overlayed on the hunger bar

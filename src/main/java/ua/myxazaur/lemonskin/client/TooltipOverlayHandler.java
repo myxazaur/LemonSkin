@@ -9,12 +9,15 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
 import org.lwjgl.opengl.GL11;
+
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.ModInfo;
@@ -26,193 +29,374 @@ import ua.myxazaur.lemonskin.helpers.KeyHelper;
 @SideOnly(Side.CLIENT)
 public class TooltipOverlayHandler
 {
-	private static ResourceLocation modIcons = new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
-	public static final int TOOLTIP_REAL_HEIGHT_OFFSET_BOTTOM = 3;
-	public static final int TOOLTIP_REAL_HEIGHT_OFFSET_TOP = -3;
-	public static final int TOOLTIP_REAL_WIDTH_OFFSET_RIGHT = 3;
+	private static final ResourceLocation MOD_ICONS =
+			new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
+
+	/* Legacy constants -------------------------------------------------- */
+	private static final int LEGACY_BOTTOM_OFFSET = 3;
+	private static final int LEGACY_TOP_OFFSET    = -3;
+	private static final int LEGACY_RIGHT_OFFSET  = 3;
 
 	public static void init()
 	{
 		MinecraftForge.EVENT_BUS.register(new TooltipOverlayHandler());
 	}
 
+	/* ------------------------------------------------------------------ */
+	/* 1)  Inject blank lines so Forge reserves space (Modern mode only)  */
+	/* ------------------------------------------------------------------ */
+	@SubscribeEvent
+	public void onItemTooltip(net.minecraftforge.event.entity.player.ItemTooltipEvent event)
+	{
+		if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
+
+		ItemStack stack = event.getItemStack();
+		if (stack == null || stack.isEmpty()) return;
+
+		boolean shouldShow =
+				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
+						ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
+		if (!shouldShow || !FoodHelper.isFood(stack)) return;
+
+		EntityPlayer player = Minecraft.getMinecraft().player;
+		FoodHelper.BasicFoodValues base   = FoodHelper.getDefaultFoodValues(stack);
+		FoodHelper.BasicFoodValues actual = FoodHelper.getModifiedFoodValues(stack, player);
+
+		if (LemonSkin.hasAppleCore)
+		{
+			base   = AppleCoreHelper.getFoodValuesForDisplay(base,   player);
+			actual = AppleCoreHelper.getFoodValuesForDisplay(actual, player);
+		}
+		base   = BetterWithModsHelper.getFoodValuesForDisplay(base);
+		actual = BetterWithModsHelper.getFoodValuesForDisplay(actual);
+
+		if (base.equals(actual) && base.hunger == 0) return;
+
+		int biggestHunger   = Math.max(base.hunger, actual.hunger);
+		float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
+
+		int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
+		int satBars    = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
+
+		float scale = 2.2f;
+		float hungerLen = hungerBars * scale + (hungerBars > 10 ? 3 : 0);
+		float satLen    = satBars    * scale * 0.8f + (satBars > 10 ? 3 : 0);
+		int spacesNeeded = (int) Math.ceil(Math.max(hungerLen, satLen));
+
+		StringBuilder sb = new StringBuilder(" ");
+		for (int i = 0; i < spacesNeeded; i++) sb.append(" ");
+		event.getToolTip().add(sb.toString());
+		event.getToolTip().add(sb.toString());
+	}
+
+	/* ------------------------------------------------------------------ */
+	/* 2)  Actual rendering                                               */
+	/* ------------------------------------------------------------------ */
 	@SubscribeEvent
 	public void onRenderTooltip(RenderTooltipEvent.PostText event)
 	{
-		ItemStack hoveredStack = event.getStack();
-		if (hoveredStack == null || hoveredStack.isEmpty())
-			return;
+		ItemStack stack = event.getStack();
+		if (stack == null || stack.isEmpty()) return;
 
-		boolean shouldShowTooltip = (ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) || ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
-		if (!shouldShowTooltip)
-			return;
+		boolean shouldShow =
+				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
+						ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
+		if (!shouldShow || !FoodHelper.isFood(stack)) return;
 
 		Minecraft mc = Minecraft.getMinecraft();
 		GuiScreen gui = mc.currentScreen;
-
-		if (gui == null)
-			return;
-
-		if (!FoodHelper.isFood(hoveredStack))
-			return;
+		if (gui == null) return;
 
 		EntityPlayer player = mc.player;
+		FoodHelper.BasicFoodValues base   = FoodHelper.getDefaultFoodValues(stack);
+		FoodHelper.BasicFoodValues actual = FoodHelper.getModifiedFoodValues(stack, player);
+
+		if (LemonSkin.hasAppleCore)
+		{
+			base   = AppleCoreHelper.getFoodValuesForDisplay(base,   player);
+			actual = AppleCoreHelper.getFoodValuesForDisplay(actual, player);
+		}
+		base   = BetterWithModsHelper.getFoodValuesForDisplay(base);
+		actual = BetterWithModsHelper.getFoodValuesForDisplay(actual);
+
+		if (base.equals(actual) && base.hunger == 0) return;
+
+		/* -------------------------------------------------------------- */
+		/*  Branch depending on config                                   */
+		/* -------------------------------------------------------------- */
+		if (ModConfig.CLIENT.USE_MODERN_TOOLTIP)
+			renderModern(event, stack, base, actual);
+		else
+			renderLegacy(event, stack, base, actual);
+	}
+
+	/* ================================================================ */
+	/*  MODERN – draw inside tooltip (Forge already reserved space)    */
+	/* ================================================================ */
+	private void renderModern(RenderTooltipEvent.PostText event, ItemStack stack,
+							  FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		GuiScreen gui = mc.currentScreen;
+
+		int biggestHunger   = Math.max(base.hunger, actual.hunger);
+		float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
+
+		int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
+		int satBars    = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
+
+		String hungerText = null;
+		if (hungerBars > 10)
+		{
+			hungerText = ((biggestHunger < 0 ? "-" : "") + hungerBars) + "x ";
+			hungerBars = 1;
+		}
+
+		String satText = null;
+		if (satBars > 10 || satBars == 0)
+		{
+			satText = ((biggestSatInc < 0 ? "-" : "") + satBars) + "x ";
+			satBars = 1;
+		}
+
+		int lineHeight = 10;
+		int y = event.getY() + (event.getLines().size() - 2) * lineHeight + 2;
+		int x = event.getX();
+
+		/* Hunger ------------------------------------------------------- */
+		mc.getTextureManager().bindTexture(Gui.ICONS);
+		boolean rotten = FoodHelper.isRotten(stack);
+		int iconOffset = rotten ? 36 : 0;
+
+		int startX = x;
+		for (int i = 0; i < hungerBars * 2; i += 2)
+		{
+			int u;
+			if (actual.hunger < 0)
+				u = 34 + iconOffset;
+			else if (actual.hunger > base.hunger && base.hunger <= i)
+				u = 133 + iconOffset;
+			else if (actual.hunger > i + 1 || base.hunger == actual.hunger)
+				u = 16 + (rotten ? 13 : 0) * 9;
+			else if (actual.hunger == i + 1)
+				u = 124;
+			else
+				u = 34;
+
+			gui.drawTexturedModalRect(startX + i / 2 * 9, y, u, 27, 9, 9);
+
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 0.25F);
+			gui.drawTexturedModalRect(startX + i / 2 * 9, y,
+					base.hunger - 1 == i ? 115 : 106, 27, 9, 9);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+			if (actual.hunger > i)
+				gui.drawTexturedModalRect(startX + i / 2 * 9, y,
+						actual.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
+		}
+
+		if (hungerText != null)
+		{
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(0.75F, 0.75F, 0.75F);
+			mc.fontRenderer.drawStringWithShadow(hungerText,
+					(startX + hungerBars * 9 + 2) * 4 / 3,
+					(y * 4 / 3) + 2,
+					0xFFDDDDDD);
+			GlStateManager.popMatrix();
+		}
+
+		/* Saturation --------------------------------------------------- */
+		y += 10;
+		startX = x;
+
+		float satInc = actual.getSaturationIncrement();
+		float absSat = Math.abs(satInc);
+
+		mc.getTextureManager().bindTexture(MOD_ICONS);
+		for (int i = 0; i < satBars * 2; i += 2)
+		{
+			float eff = (absSat - i) / 2f;
+			int u = eff >= 1 ? 21 : eff > 0.5 ? 14 : eff > 0.25 ? 7 : eff > 0 ? 0 : 28;
+			int v = satInc >= 0 ? 27 : 34;
+
+			if (absSat <= i)
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
+
+			gui.drawTexturedModalRect(startX + i / 2 * 7, y, u, v, 7, 7);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		}
+
+		if (satText != null)
+		{
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(0.75F, 0.75F, 0.75F);
+			mc.fontRenderer.drawStringWithShadow(satText,
+					(startX + satBars * 6 + 2) * 4 / 3,
+					(y * 4 / 3) + 1,
+					0xFFDDDDDD);
+			GlStateManager.popMatrix();
+		}
+
+		/* GL reset ----------------------------------------------------- */
+		GlStateManager.disableBlend();
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderHelper.disableStandardItemLighting();
+		GlStateManager.disableLighting();
+		GlStateManager.disableDepth();
+	}
+
+	/* ================================================================ */
+	/*  LEGACY – draw on a separate floating background                */
+	/* ================================================================ */
+	private void renderLegacy(RenderTooltipEvent.PostText event, ItemStack stack,
+							  FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		GuiScreen gui = mc.currentScreen;
 		ScaledResolution scale = new ScaledResolution(mc);
+
 		int toolTipY = event.getY();
 		int toolTipX = event.getX();
 		int toolTipW = event.getWidth();
 		int toolTipH = event.getHeight();
 
-		FoodHelper.BasicFoodValues defaultFoodValues = FoodHelper.getDefaultFoodValues(hoveredStack);
-		FoodHelper.BasicFoodValues modifiedFoodValues = FoodHelper.getModifiedFoodValues(hoveredStack, player);
+		int biggestHunger   = Math.max(base.hunger, actual.hunger);
+		float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
 
-		// Apply scale for altered max hunger if necessary
-		if (LemonSkin.hasAppleCore)
-		{
-			defaultFoodValues = AppleCoreHelper.getFoodValuesForDisplay(defaultFoodValues, player);
-			modifiedFoodValues = AppleCoreHelper.getFoodValuesForDisplay(modifiedFoodValues, player);
-		}
+		int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
+		boolean hungerOverflow = hungerBars > 10;
+		String hungerText = hungerOverflow ? ((biggestHunger < 0 ? -1 : 1) * hungerBars) + "x " : null;
+		if (hungerOverflow) hungerBars = 1;
 
-		// Apply BWM tweaks if necessary
-		defaultFoodValues = BetterWithModsHelper.getFoodValuesForDisplay(defaultFoodValues);
-		modifiedFoodValues = BetterWithModsHelper.getFoodValuesForDisplay(modifiedFoodValues);
+		int satBars = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
+		boolean satOverflow = satBars > 10;
+		String satText = satOverflow ? ((biggestSatInc < 0 ? -1 : 1) * satBars) + "x " : null;
+		if (satOverflow) satBars = 1;
 
-		if (defaultFoodValues.equals(modifiedFoodValues) && defaultFoodValues.hunger == 0)
-			return;
+		int toolTipBottomY = toolTipY + toolTipH + 1 + LEGACY_BOTTOM_OFFSET;
+		boolean drawBelow  = toolTipBottomY + 20 < scale.getScaledHeight() - 3;
 
-		boolean isRotten = FoodHelper.isRotten(hoveredStack);
-
-		int biggestHunger = Math.max(defaultFoodValues.hunger, modifiedFoodValues.hunger);
-		float biggestSaturationIncrement = Math.max(defaultFoodValues.getSaturationIncrement(), modifiedFoodValues.getSaturationIncrement());
-
-		int barsNeeded = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
-		boolean hungerOverflow = barsNeeded > 10;
-		String hungerText = hungerOverflow ? ((biggestHunger < 0 ? -1 : 1) * barsNeeded) + "x " : null;
-		if (hungerOverflow)
-			barsNeeded = 1;
-
-		int saturationBarsNeeded = (int) Math.max(1, Math.ceil(Math.abs(biggestSaturationIncrement) / 2f));
-		boolean saturationOverflow = saturationBarsNeeded > 10;
-		String saturationText = saturationOverflow ? ((biggestSaturationIncrement < 0 ? -1 : 1) * saturationBarsNeeded) + "x " : null;
-		if (saturationOverflow)
-			saturationBarsNeeded = 1;
-
-		int toolTipBottomY = toolTipY + toolTipH + 1 + TOOLTIP_REAL_HEIGHT_OFFSET_BOTTOM;
-
-		boolean shouldDrawBelow = toolTipBottomY + 20 < scale.getScaledHeight() - 3;
-		int topY = (shouldDrawBelow ? toolTipBottomY : toolTipY - 20 + TOOLTIP_REAL_HEIGHT_OFFSET_TOP);
+		int topY    = drawBelow ? toolTipBottomY : toolTipY - 20 + LEGACY_TOP_OFFSET;
 		int bottomY = topY + 19;
 
-		int hungerIconsWidth = barsNeeded * 9;
-		int saturationIconsWidth = saturationBarsNeeded * 6;
+		int hungerIconsWidth  = hungerBars * 9;
+		int satIconsWidth     = satBars * 6;
 
-		int hungerTextWidthScaled = 0;
-		if (hungerText != null) {
-			hungerTextWidthScaled = (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f);
-		}
-		int saturationTextWidthScaled = 0;
-		if (saturationText != null) {
-			saturationTextWidthScaled = (int) (mc.fontRenderer.getStringWidth(saturationText) * 0.75f);
-		}
+		int hungerTextWidth  = hungerText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f);
+		int satTextWidth     = satText    == null ? 0 : (int) (mc.fontRenderer.getStringWidth(satText)    * 0.75f);
 
-		int hungerLineWidth = hungerIconsWidth + (hungerTextWidthScaled > 0 ? hungerTextWidthScaled + 2 : 0); // +2 пикселя между иконками и текстом
-		int saturationLineWidth = saturationIconsWidth + (saturationTextWidthScaled > 0 ? saturationTextWidthScaled + 2 : 0);
+		int hungerLineWidth = hungerIconsWidth  + (hungerTextWidth  > 0 ? hungerTextWidth  + 2 : 0);
+		int satLineWidth    = satIconsWidth     + (satTextWidth     > 0 ? satTextWidth     + 2 : 0);
 
-		int contentWidth = Math.max(hungerLineWidth, saturationLineWidth);
+		int contentWidth = Math.max(hungerLineWidth, satLineWidth);
 		int overlayWidth = contentWidth + 6;
 
 		int minLeftX = toolTipX;
 		int maxRightX = toolTipX + toolTipW;
 
 		int rightX = maxRightX;
-		int leftX = rightX - overlayWidth;
+		int leftX  = rightX - overlayWidth;
 
 		boolean needsTopBorder = false;
-		if (leftX < minLeftX) {
+		if (leftX < minLeftX)
+		{
 			leftX = minLeftX;
 			rightX = leftX + overlayWidth;
 			needsTopBorder = true;
 		}
 
+		/* Draw background -------------------------------------------- */
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		Gui.drawRect(leftX - 1, topY, rightX + 1, bottomY, 0xF0100010);
-		Gui.drawRect(leftX, (shouldDrawBelow ? bottomY : topY - 1), rightX, (shouldDrawBelow ? bottomY + 1 : topY), 0xF0100010);
-		if (needsTopBorder || !shouldDrawBelow) {
-			Gui.drawRect(leftX, (shouldDrawBelow ? topY - 1 : bottomY), rightX, (shouldDrawBelow ? topY : bottomY + 1), 0xF0100010);
-		}
+		Gui.drawRect(leftX, drawBelow ? bottomY : topY - 1,
+				rightX, drawBelow ? bottomY + 1 : topY, 0xF0100010);
+		if (needsTopBorder || !drawBelow)
+			Gui.drawRect(leftX, drawBelow ? topY - 1 : bottomY,
+					rightX, drawBelow ? topY : bottomY + 1, 0xF0100010);
 		Gui.drawRect(leftX, topY, rightX, bottomY, 0x66FFFFFF);
-		// drawRect disables blending and modifies color, so reset them
+
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
 		int leftPadding = 3;
-
 		int x = leftX + leftPadding;
 		int startX = x;
 		int y = bottomY - 18;
 
+		/* Hunger icons ----------------------------------------------- */
 		mc.getTextureManager().bindTexture(Gui.ICONS);
+		boolean isRotten = FoodHelper.isRotten(stack);
 		int iconOffset = isRotten ? 36 : 0;
 		int background = isRotten ? 13 : 0;
-		for (int i = 0; i < barsNeeded * 2; i += 2)
+
+		for (int i = 0; i < hungerBars * 2; i += 2)
 		{
-			if (modifiedFoodValues.hunger < 0)
+			if (actual.hunger < 0)
 				gui.drawTexturedModalRect(x, y, 34 + iconOffset, 27, 9, 9);
-			else if (modifiedFoodValues.hunger > defaultFoodValues.hunger && defaultFoodValues.hunger <= i)
+			else if (actual.hunger > base.hunger && base.hunger <= i)
 				gui.drawTexturedModalRect(x, y, 133 + iconOffset, 27, 9, 9);
-			else if (modifiedFoodValues.hunger > i + 1 || defaultFoodValues.hunger == modifiedFoodValues.hunger)
+			else if (actual.hunger > i + 1 || base.hunger == actual.hunger)
 				gui.drawTexturedModalRect(x, y, 16 + background * 9, 27, 9, 9);
-			else if (modifiedFoodValues.hunger == i + 1)
+			else if (actual.hunger == i + 1)
 				gui.drawTexturedModalRect(x, y, 124, 27, 9, 9);
 			else
 				gui.drawTexturedModalRect(x, y, 34, 27, 9, 9);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, .25F);
-			gui.drawTexturedModalRect(x, y, defaultFoodValues.hunger - 1 == i ? 115 : 106, 27, 9, 9);
-			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			if (modifiedFoodValues.hunger > i)
-				gui.drawTexturedModalRect(x, y, modifiedFoodValues.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
 
+			GlStateManager.color(1.0F, 1.0F, 1.0F, .25F);
+			gui.drawTexturedModalRect(x, y,
+					base.hunger - 1 == i ? 115 : 106, 27, 9, 9);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+			if (actual.hunger > i)
+				gui.drawTexturedModalRect(x, y,
+						actual.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
 			x += 9;
 		}
 		if (hungerText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
-			mc.fontRenderer.drawStringWithShadow(hungerText, (x + 2) * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
+			mc.fontRenderer.drawStringWithShadow(hungerText,
+					(x + 2) * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
+		/* Saturation icons ------------------------------------------- */
 		y += 10;
 		x = startX;
 
-		float modifiedSaturationIncrement = modifiedFoodValues.getSaturationIncrement();
-		float absModifiedSaturationIncrement = Math.abs(modifiedSaturationIncrement);
-		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(modIcons);
-		for (int i = 0; i < saturationBarsNeeded * 2; i += 2)
-		{
-			float effectiveSaturationOfBar = (absModifiedSaturationIncrement - i) / 2f;
-			if (absModifiedSaturationIncrement <= i)
-				GlStateManager.color(1.0F, 1.0F, 1.0F, .5F);
-			gui.drawTexturedModalRect(x, y, effectiveSaturationOfBar >= 1 ? 21 : effectiveSaturationOfBar > 0.5 ? 14 : effectiveSaturationOfBar > 0.25 ? 7 : effectiveSaturationOfBar > 0 ? 0 : 28, modifiedSaturationIncrement >= 0 ? 27 : 34, 7, 7);
-			if (absModifiedSaturationIncrement <= i)
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		float satInc = actual.getSaturationIncrement();
+		float absSat = Math.abs(satInc);
 
+		mc.getTextureManager().bindTexture(MOD_ICONS);
+		for (int i = 0; i < satBars * 2; i += 2)
+		{
+			float eff = (absSat - i) / 2f;
+			int u = eff >= 1 ? 21 : eff > 0.5 ? 14 : eff > 0.25 ? 7 : eff > 0 ? 0 : 28;
+			int v = satInc >= 0 ? 27 : 34;
+
+			if (absSat <= i)
+				GlStateManager.color(1.0F, 1.0F, 1.0F, .5F);
+			gui.drawTexturedModalRect(x, y, u, v, 7, 7);
+			if (absSat <= i)
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			x += 6;
 		}
-		if (saturationText != null)
+		if (satText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
-			mc.fontRenderer.drawStringWithShadow(saturationText, (x + 2) * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
+			mc.fontRenderer.drawStringWithShadow(satText,
+					(x + 2) * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
+		/* GL reset ---------------------------------------------------- */
 		GlStateManager.disableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		// reset to drawHoveringText state
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();

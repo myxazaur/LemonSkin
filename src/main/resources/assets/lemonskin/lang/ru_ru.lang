@@ -1,4 +1,5 @@
 # Config GUI
+use.modern.tooltip=Современный рендер тултипа
 show.food.values.in.tooltip=Показывать значения еды в подсказке
 show.food.values.in.tooltip.always=Всегда показывать значения еды
 show.saturation.hud.overlay=Показывать насыщение в HUD
@@ -9,6 +10,7 @@ show.vanilla.animations.overlay=Показывать анимации ванил
 show.food.stats.in.debug.overlay=Показывать статистику еды в F3
 
 # Tooltips
+use.modern.tooltip.tooltip=true  – рисовать линии непосредственно внутри подсказки\nfalse – рисовать на отдельном плавающем фоне (legacy)
 show.food.values.in.tooltip.tooltip=Если включено, показывает значения голода и насыщения еды в подсказке при зажатии SHIFT
 show.food.values.in.tooltip.always.tooltip=Если включено, автоматически показывает значения голода и насыщения еды в подсказке (без необходимости зажимать SHIFT)
 show.saturation.hud.overlay.tooltip=Если включено, показывает ваш текущий уровень насыщения поверх полосок голода
