@@ -148,14 +148,14 @@ public class TooltipOverlayHandler
 		String hungerText = null;
 		if (hungerBars > 10)
 		{
-			hungerText = ((biggestHunger < 0 ? "-" : "") + hungerBars) + "x ";
+			hungerText = "x" + ((biggestHunger < 0 ? "-" : "") + hungerBars);
 			hungerBars = 1;
 		}
 
 		String satText = null;
 		if (satBars > 10 || satBars == 0)
 		{
-			satText = ((biggestSatInc < 0 ? "-" : "") + satBars) + "x ";
+			satText = "x" + ((biggestSatInc < 0 ? "-" : "") + satBars);
 			satBars = 1;
 		}
 
@@ -266,12 +266,12 @@ public class TooltipOverlayHandler
 
 		int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
 		boolean hungerOverflow = hungerBars > 10;
-		String hungerText = hungerOverflow ? ((biggestHunger < 0 ? -1 : 1) * hungerBars) + "x " : null;
+		String hungerText = hungerOverflow ? ((biggestHunger < 0 ? -1 : 1) * hungerBars) + "x" : null;
 		if (hungerOverflow) hungerBars = 1;
 
 		int satBars = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
 		boolean satOverflow = satBars > 10;
-		String satText = satOverflow ? ((biggestSatInc < 0 ? -1 : 1) * satBars) + "x " : null;
+		String satText = satOverflow ? ((biggestSatInc < 0 ? -1 : 1) * satBars) + "x" : null;
 		if (satOverflow) satBars = 1;
 
 		int toolTipBottomY = toolTipY + toolTipH + 1 + LEGACY_BOTTOM_OFFSET;
@@ -321,9 +321,7 @@ public class TooltipOverlayHandler
 		GlStateManager.enableBlend();
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-		int leftPadding = 3;
-		int x = leftX + leftPadding;
-		int startX = x;
+		int rightPadding = 3;
 		int y = bottomY - 18;
 
 		/* Hunger icons ----------------------------------------------- */
@@ -332,47 +330,57 @@ public class TooltipOverlayHandler
 		int iconOffset = isRotten ? 36 : 0;
 		int background = isRotten ? 13 : 0;
 
-		for (int i = 0; i < hungerBars * 2; i += 2)
+		int hungerTextX = rightX - rightPadding - hungerIconsWidth - (hungerTextWidth > 0 ? 2 : 0) - hungerTextWidth;
+		int hungerStartX = rightX - rightPadding - hungerIconsWidth;
+
+		int hungerX = hungerStartX;
+
+		for (int i = hungerBars * 2 - 2; i >= 0; i -= 2)
 		{
 			if (actual.hunger < 0)
-				gui.drawTexturedModalRect(x, y, 34 + iconOffset, 27, 9, 9);
+				gui.drawTexturedModalRect(hungerX, y, 34 + iconOffset, 27, 9, 9);
 			else if (actual.hunger > base.hunger && base.hunger <= i)
-				gui.drawTexturedModalRect(x, y, 133 + iconOffset, 27, 9, 9);
+				gui.drawTexturedModalRect(hungerX, y, 133 + iconOffset, 27, 9, 9);
 			else if (actual.hunger > i + 1 || base.hunger == actual.hunger)
-				gui.drawTexturedModalRect(x, y, 16 + background * 9, 27, 9, 9);
+				gui.drawTexturedModalRect(hungerX, y, 16 + background * 9, 27, 9, 9);
 			else if (actual.hunger == i + 1)
-				gui.drawTexturedModalRect(x, y, 124, 27, 9, 9);
+				gui.drawTexturedModalRect(hungerX, y, 124, 27, 9, 9);
 			else
-				gui.drawTexturedModalRect(x, y, 34, 27, 9, 9);
+				gui.drawTexturedModalRect(hungerX, y, 34, 27, 9, 9);
 
 			GlStateManager.color(1.0F, 1.0F, 1.0F, .25F);
-			gui.drawTexturedModalRect(x, y,
+			gui.drawTexturedModalRect(hungerX, y,
 					base.hunger - 1 == i ? 115 : 106, 27, 9, 9);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 
 			if (actual.hunger > i)
-				gui.drawTexturedModalRect(x, y,
+				gui.drawTexturedModalRect(hungerX, y,
 						actual.hunger - 1 == i ? 61 + iconOffset : 52 + iconOffset, 27, 9, 9);
-			x += 9;
+			hungerX += 9;
 		}
+
 		if (hungerText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			mc.fontRenderer.drawStringWithShadow(hungerText,
-					(x + 2) * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
+					hungerTextX * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
 		/* Saturation icons ------------------------------------------- */
 		y += 10;
-		x = startX;
+
+		int satTextX = rightX - rightPadding - satIconsWidth - (satTextWidth > 0 ? 2 : 0) - satTextWidth;
+		int satStartX = rightX - rightPadding - satIconsWidth;
+
+		int satX = satStartX;
 
 		float satInc = actual.getSaturationIncrement();
 		float absSat = Math.abs(satInc);
 
 		mc.getTextureManager().bindTexture(MOD_ICONS);
-		for (int i = 0; i < satBars * 2; i += 2)
+		for (int i = satBars * 2 - 2; i >= 0; i -= 2)
 		{
 			float eff = (absSat - i) / 2f;
 			int u = eff >= 1 ? 21 : eff > 0.5 ? 14 : eff > 0.25 ? 7 : eff > 0 ? 0 : 28;
@@ -380,17 +388,18 @@ public class TooltipOverlayHandler
 
 			if (absSat <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, .5F);
-			gui.drawTexturedModalRect(x, y, u, v, 7, 7);
+			gui.drawTexturedModalRect(satX, y, u, v, 7, 7);
 			if (absSat <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-			x += 6;
+			satX += 6;
 		}
+
 		if (satText != null)
 		{
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			mc.fontRenderer.drawStringWithShadow(satText,
-					(x + 2) * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
+					satTextX * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
