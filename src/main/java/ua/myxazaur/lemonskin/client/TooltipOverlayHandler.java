@@ -12,6 +12,7 @@ import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -47,7 +48,7 @@ public class TooltipOverlayHandler
 	/* 1)  Inject blank lines so Forge reserves space (Modern mode only)  */
 	/* ------------------------------------------------------------------ */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public void onItemTooltip(net.minecraftforge.event.entity.player.ItemTooltipEvent event)
+	public void onItemTooltip(ItemTooltipEvent event)
 	{
 		if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
 
