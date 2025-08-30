@@ -280,37 +280,37 @@ public class HUDOverlayHandler
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 
 		EntityPlayer player = mc.player;
-		int healthTarget  = MathHelper.ceil(modified);
+		int healthTarget = MathHelper.ceil(modified);
 
 		boolean hardcore = mc.world.getWorldInfo().isHardcoreModeEnabled();
 		int topOffset = hardcore ? 45 : 0;
 
 		int margin = 16;
-		if (player.isPotionActive(MobEffects.POISON))      margin += 36;
+		if (player.isPotionActive(MobEffects.POISON)) margin += 36;
 		else if (player.isPotionActive(MobEffects.WITHER)) margin += 72;
 
 		enableAlpha(alpha);
 
-		int start;
-		int end   = MathHelper.ceil(modified / 2.0F);
-
-		if ((int)current % 2 == 0) start = (int)(current / 2.0F);
-		else                       start = (int)Math.floor(current / 2.0F);
+		int start = (int) Math.max(0, (Math.ceil(current) / 2.0F));
+		int end = (int) Math.max(0, Math.ceil(modified / 2.0F));
 
 		float healthMax = player.getMaxHealth();
 		float absorb = player.getAbsorptionAmount();
-		int totalHearts = MathHelper.ceil((healthMax + absorb) / 2.0F);
+		int healthBars = MathHelper.ceil((healthMax + absorb) / 2.0F);
 
-		boolean shouldShake = current <= 4.0F && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
+		int healthRows = MathHelper.ceil((float) healthBars / 10.0F);
+		int healthRowHeight = Math.max(10 - (healthRows - 2), 3);
+
+		boolean shouldShake = current <= 4 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
 
 		for (int i = start; i < end; i++) {
-			int row  = i / 10;
+			int rowIndex = (int) Math.ceil((float) (i + 1) / 10.0F) - 1;
 			int x = left + (i % 10) * 8;
-			int y = top - row * 8;
+			int y = top - (rowIndex * healthRowHeight);
 
 			if (shouldShake) {
 				Random rand = new Random((long) updateCounter * 312871L);
-				int skips = totalHearts - 1 - i;
+				int skips = healthBars - 1 - i;
 				for (int j = 0; j < skips; j++) {
 					rand.nextInt(2);
 				}
