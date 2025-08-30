@@ -87,8 +87,8 @@ public class TooltipOverlayHandler
 		float satLen    = satBars < 10 ? satBars * scale * 0.8f : 2;
 		int spacesNeeded = (int) Math.ceil(Math.max(hungerLen, satLen));
 
-		StringBuilder sb = new StringBuilder(" ");
-		for (int i = 0; i < spacesNeeded; i++) sb.append(" ");
+		StringBuilder sb = new StringBuilder("\u00A0");
+		for (int i = 0; i < spacesNeeded; i++) sb.append("\u00A0");
 		event.getToolTip().add(sb.toString());
 		event.getToolTip().add(sb.toString());
 	}
@@ -135,6 +135,9 @@ public class TooltipOverlayHandler
 			renderModern(event, stack, base, actual);
 		else
 			renderLegacy(event, stack, base, actual);
+
+		// Clear ItemStack to avoid tooltip rendering issues
+		this.stack = ItemStack.EMPTY;
 	}
 
 	/* ================================================================ */
