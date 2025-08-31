@@ -51,6 +51,8 @@ public class FoodHelper
 
 	public static boolean isFood(ItemStack itemStack)
 	{
+		if (itemStack == null || itemStack.isEmpty()) return false;
+
 		if (LemonSkin.hasAppleCore)
 			return AppleCoreHelper.isFood(itemStack);
 
