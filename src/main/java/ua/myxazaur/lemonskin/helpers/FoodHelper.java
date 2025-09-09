@@ -76,10 +76,9 @@ public class FoodHelper
 			return null;
 		}
 
-		ItemFood itemFood = (ItemFood) itemStack.getItem();
-
 		try
 		{
+			ItemFood itemFood = (ItemFood) itemStack.getItem();
 			Field potionIdField = ReflectionHelper.findField(
 					ItemFood.class, "potionId", "field_77851_ca");
 			potionIdField.setAccessible(true);
@@ -96,7 +95,7 @@ public class FoodHelper
 			LemonSkin.Log.warn("Could not access potionId field for effects");
 			return null;
 		}
-	}
+    }
 
 	public static BasicFoodValues getDefaultFoodValues(ItemStack itemStack)
 	{
