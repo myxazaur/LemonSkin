@@ -1,4 +1,4 @@
-<img src="https://raw.githubusercontent.com/myxazaur/LemonSkin/refs/heads/master/.github/assets/lemonskin.png" width="32" /> LemonSkin ![](https://cf.way2muchnoise.eu/1337144.svg)
+<img src="https://raw.githubusercontent.com/myxazaur/LemonSkin/refs/heads/master/.github/assets/lemonskin.png" width="32" /> LemonSkin [![](https://cf.way2muchnoise.eu/1337144.svg)](https://www.curseforge.com/minecraft/mc-mods/lemonskin)
 ===========
 
 __Minecraft mod that adds various food-related HUD improvements__
