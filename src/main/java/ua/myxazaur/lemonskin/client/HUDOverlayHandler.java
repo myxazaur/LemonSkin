@@ -27,7 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
-import ua.myxazaur.lemonskin.ModInfo;
+import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
 import ua.myxazaur.lemonskin.helpers.HealthHelper;
@@ -44,7 +44,7 @@ public class HUDOverlayHandler
 	protected int iconsOffset;
 	private static int updateCounter;
 
-	private static final ResourceLocation modIcons = new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
+	private static final ResourceLocation modIcons = new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
 	private static final Field UCField = ReflectionHelper.findField(GuiIngame.class, "updateCounter", "field_73837_f");
 
 	public static void init()

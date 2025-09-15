@@ -34,6 +34,7 @@ repositories {
 
 dependencies {
     implementation "applecore:AppleCore:1.12-2.2.2:api"
+    implementation "mezz:jei:4.29.7"
 
     // Include StripLatestForgeRequirements by default for the dev env, saves everyone a hassle
     runtimeOnly 'com.cleanroommc:strip-latest-forge-requirements:1.0'

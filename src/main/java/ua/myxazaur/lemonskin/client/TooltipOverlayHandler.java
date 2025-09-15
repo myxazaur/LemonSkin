@@ -22,23 +22,21 @@ import org.lwjgl.opengl.GL11;
 
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
-import ua.myxazaur.lemonskin.ModInfo;
-import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
-import ua.myxazaur.lemonskin.helpers.BetterWithModsHelper;
-import ua.myxazaur.lemonskin.helpers.FoodHelper;
-import ua.myxazaur.lemonskin.helpers.KeyHelper;
+import ua.myxazaur.lemonskin.Tags;
+import ua.myxazaur.lemonskin.helpers.*;
+
+import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class TooltipOverlayHandler
 {
 	private static final ResourceLocation MOD_ICONS =
-			new ResourceLocation(ModInfo.MODID_LOWER, "textures/icons.png");
-	private ItemStack cachedStack;
+			new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
+	private ItemStack cachedStack = ItemStack.EMPTY;
 
 	/* Legacy constants -------------------------------------------------- */
 	private static final int LEGACY_BOTTOM_OFFSET = 3;
 	private static final int LEGACY_TOP_OFFSET    = -3;
-	private static final int LEGACY_RIGHT_OFFSET  = 3;
 
 	public static void init()
 	{
@@ -54,43 +52,10 @@ public class TooltipOverlayHandler
 		if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
 
 		ItemStack stack = event.getItemStack();
-		if (stack == null || stack.isEmpty()) return;
+		if (stack.isEmpty()) return;
 		this.cachedStack = stack;
 
-		boolean shouldShow =
-				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
-						ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
-		if (!shouldShow || !FoodHelper.isFood(stack)) return;
-
-		EntityPlayer player = Minecraft.getMinecraft().player;
-		FoodHelper.BasicFoodValues base   = FoodHelper.getDefaultFoodValues(stack);
-		FoodHelper.BasicFoodValues actual = FoodHelper.getModifiedFoodValues(stack, player);
-
-		if (LemonSkin.hasAppleCore)
-		{
-			base   = AppleCoreHelper.getFoodValuesForDisplay(base,   player);
-			actual = AppleCoreHelper.getFoodValuesForDisplay(actual, player);
-		}
-		base   = BetterWithModsHelper.getFoodValuesForDisplay(base);
-		actual = BetterWithModsHelper.getFoodValuesForDisplay(actual);
-
-		if (base.equals(actual) && base.hunger == 0) return;
-
-		int biggestHunger   = Math.max(base.hunger, actual.hunger);
-		float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
-
-		int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
-		int satBars    = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
-
-		float scale = 2.2f;
-		float hungerLen = hungerBars < 10 ? hungerBars * scale : 2;
-		float satLen    = satBars < 10 ? satBars * scale * 0.8f : 2;
-		int spacesNeeded = (int) Math.ceil(Math.max(hungerLen, satLen));
-
-		StringBuilder sb = new StringBuilder("\u00A0");
-		for (int i = 0; i < spacesNeeded; i++) sb.append("\u00A0");
-		event.getToolTip().add(sb.toString());
-		event.getToolTip().add(sb.toString());
+		TooltipHelper.reserveFoodTooltipSpace(event.getToolTip(), stack);
 	}
 
 	/* ------------------------------------------------------------------ */
@@ -104,7 +69,7 @@ public class TooltipOverlayHandler
 			// Forge gives empty ItemStack if tooltip rendering called from recipe book method
 			if (this.cachedStack == null) return;
 			stack = this.cachedStack;
-		};
+		}
 
 		boolean shouldShow =
 				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name("LemonSkinPlugin")
 @IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
-public class LemonSkinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
+public class LemonSkinPlugin implements IFMLLoadingPlugin {
     @Override
     public String[] getASMTransformerClass() {
         return new String[0];
@@ -40,8 +40,8 @@ public class LemonSkinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
         return null;
     }
 
-    @Override
-    public List<String> getMixinConfigs() {
-        return Collections.singletonList("mixins.lemonskin.json");
-    }
+//    @Override
+//    public List<String> getMixinConfigs() {
+//        return Collections.singletonList("mixins.lemonskin.json");
+//    }
 }

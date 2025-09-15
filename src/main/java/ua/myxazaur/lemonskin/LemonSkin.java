@@ -17,7 +17,7 @@ import ua.myxazaur.lemonskin.network.SyncHandler;
 @Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION)
 public class LemonSkin {
 
-    public static Logger Log = LogManager.getLogger(ModInfo.MODID);
+    public static Logger Log = LogManager.getLogger(Tags.MOD_ID);
     public static boolean hasAppleCore = false;
     public static boolean hasAppleSkin = false;
 

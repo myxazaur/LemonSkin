@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import ua.myxazaur.lemonskin.ModInfo;
+import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.UUID;
 
 public class SyncHandler
 {
-	public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(ModInfo.MODID);
+	public static final SimpleNetworkWrapper CHANNEL = NetworkRegistry.INSTANCE.newSimpleChannel(Tags.MOD_ID);
 
 	public static void init()
 	{

@@ -6,9 +6,7 @@ import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static ua.myxazaur.lemonskin.ModInfo.MODID;
-
-@Config(modid = MODID)
+@Config(modid = Tags.MOD_ID)
 public class ModConfig {
 
 	@Config.Name("client")
@@ -63,12 +61,12 @@ public class ModConfig {
 		public boolean SHOW_FOOD_DEBUG_INFO = true;
 	}
 
-	@Mod.EventBusSubscriber(modid = MODID)
+	@Mod.EventBusSubscriber(modid = Tags.MOD_ID)
 	public static class ConfigSyncHandler {
 		@SubscribeEvent
 		public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
-			if (event.getModID().equals(MODID)) {
-				ConfigManager.sync(MODID, Config.Type.INSTANCE);
+			if (event.getModID().equals(Tags.MOD_ID)) {
+				ConfigManager.sync(Tags.MOD_ID, Config.Type.INSTANCE);
 			}
 		}
 	}

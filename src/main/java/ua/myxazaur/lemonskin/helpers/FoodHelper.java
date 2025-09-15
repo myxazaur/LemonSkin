@@ -2,10 +2,10 @@ package ua.myxazaur.lemonskin.helpers;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.FoodStats;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import ua.myxazaur.lemonskin.LemonSkin;
 
@@ -44,7 +44,7 @@ public class FoodHelper
 		public int hashCode()
 		{
 			int result = hunger;
-			result = 31 * result + (saturationModifier != +0.0f ? Float.floatToIntBits(saturationModifier) : 0);
+			result = 31 * result + (saturationModifier != 0.0f ? Float.floatToIntBits(saturationModifier) : 0);
 			return result;
 		}
 	}
@@ -76,12 +76,15 @@ public class FoodHelper
 			return null;
 		}
 
+		ItemFood itemFood;
+		Item item = itemStack.getItem();
+
 		try
 		{
-			ItemFood itemFood = (ItemFood) itemStack.getItem();
+			if (!(item instanceof ItemFood)) return null;
+			itemFood = (ItemFood) item;
 			Field potionIdField = ReflectionHelper.findField(
 					ItemFood.class, "potionId", "field_77851_ca");
-			potionIdField.setAccessible(true);
 
 			return (PotionEffect) potionIdField.get(itemFood);
 		}
