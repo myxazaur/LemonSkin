@@ -8,6 +8,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.helpers.TooltipHelper;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public abstract class JEI_TooltipRendererMixin
     at = @At("HEAD"), remap = false)
     private static void drawHoveringText(ItemStack itemStack, Minecraft minecraft, List<String> textLines, int x, int y, int maxWidth, FontRenderer font, CallbackInfo ci)
     {
+        if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
         textLines.removeIf(line -> line.contains("\u00A0"));
         TooltipHelper.reserveFoodTooltipSpace(textLines, itemStack);
     }
