@@ -21,5 +21,5 @@ show.food.exhaustion.hud.underlay.tooltip=If true, shows your food exhaustion as
 show.food.health.hud.overlay.tooltip=If true, shows estimated health restored by food on the health bar
 show.vanilla.animations.overlay.tooltip=If true, hunger and health overlay will shake to match Minecraft's icon animations
 show.food.stats.in.debug.overlay.tooltip=If true, adds a line that shows your hunger, saturation, and exhaustion level in the F3 debug overlay
-custom.saturation.color.tooltip=Set a custom color for the saturation HUD overlay using hex color code
+custom.saturation.color.tooltip=Set a custom color for the saturation HUD/Tooltip overlay using hex color code
 use.custom.saturation.color.tooltip=Enable to use the custom saturation color instead of default
