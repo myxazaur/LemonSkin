@@ -78,8 +78,9 @@ public class ModConfig {
 
 		public ResourceLocation getIcons()
 		{
-			return new ResourceLocation(Tags.MOD_ID, "textures/" +
-					(USE_CUSTOM_COLOR ? "icons_monochrome.png" : "icons.png"));
+			//return new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
+			return USE_CUSTOM_COLOR ? LemonSkin.grayIcons
+					:  new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
 		}
 	}
 
