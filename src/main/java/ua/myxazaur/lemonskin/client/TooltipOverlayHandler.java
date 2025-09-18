@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 
 import net.minecraftforge.client.event.RenderTooltipEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -22,16 +21,13 @@ import org.lwjgl.opengl.GL11;
 
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
-import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.*;
-
-import java.util.List;
 
 @SideOnly(Side.CLIENT)
 public class TooltipOverlayHandler
 {
-	private static final ResourceLocation MOD_ICONS =
-			new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
+	// private static final ResourceLocation MOD_ICONS =
+	// 		new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
 	private ItemStack cachedStack = ItemStack.EMPTY;
 
 	/* Legacy constants -------------------------------------------------- */
@@ -189,13 +185,15 @@ public class TooltipOverlayHandler
 		float satInc = actual.getSaturationIncrement();
 		float absSat = Math.abs(satInc);
 
-		mc.getTextureManager().bindTexture(MOD_ICONS);
+		ModConfig.RGB color = ModConfig.CLIENT.getColor();
+		mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 		for (int i = 0; i < satBars * 2; i += 2)
 		{
 			float eff = (absSat - i) / 2f;
 			int u = eff >= 1 ? 21 : eff > 0.5 ? 14 : eff > 0.25 ? 7 : eff > 0 ? 0 : 28;
 			int v = satInc >= 0 ? 27 : 34;
 
+			GlStateManager.color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F);
 			if (absSat <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 0.5F);
 
@@ -355,13 +353,15 @@ public class TooltipOverlayHandler
 		float satInc = actual.getSaturationIncrement();
 		float absSat = Math.abs(satInc);
 
-		mc.getTextureManager().bindTexture(MOD_ICONS);
+		ModConfig.RGB color = ModConfig.CLIENT.getColor();
+		mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 		for (int i = satBars * 2 - 2; i >= 0; i -= 2)
 		{
 			float eff = (absSat - i) / 2f;
 			int u = eff >= 1 ? 21 : eff > 0.5 ? 14 : eff > 0.25 ? 7 : eff > 0 ? 0 : 28;
 			int v = satInc >= 0 ? 27 : 34;
 
+			GlStateManager.color(color.getRed(), color.getGreen(), color.getBlue(), 1.0F);
 			if (absSat <= i)
 				GlStateManager.color(1.0F, 1.0F, 1.0F, .5F);
 			gui.drawTexturedModalRect(satX, y, u, v, 7, 7);

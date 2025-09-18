@@ -11,7 +11,6 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.FoodStats;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.client.GuiIngameForge;
@@ -27,7 +26,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
-import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
 import ua.myxazaur.lemonskin.helpers.HealthHelper;
@@ -44,7 +42,7 @@ public class HUDOverlayHandler
 	protected int iconsOffset;
 	private static int updateCounter;
 
-	private static final ResourceLocation modIcons = new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
+	// private static final ResourceLocation modIcons = new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
 	private static final Field UCField = ReflectionHelper.findField(GuiIngame.class, "updateCounter", "field_73837_f");
 
 	public static void init()
@@ -180,10 +178,11 @@ public class HUDOverlayHandler
 		if (saturationLevel + saturationGained < 0)
 			return;
 
+		ModConfig.RGB color = ModConfig.CLIENT.getColor();
 		int startBar = saturationGained != 0 ? Math.max(0, (int) saturationLevel / 2) : 0;
 		int endBar = (int) Math.ceil(Math.min(20, saturationLevel + saturationGained) / 2f);
 		int barsNeeded = endBar - startBar;
-		mc.getTextureManager().bindTexture(modIcons);
+		mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 
 		Random localRand = new Random((long) updateCounter * 312871L); // Hardcoded random seed from GuiIngameForge
 		boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F &&
@@ -197,6 +196,7 @@ public class HUDOverlayHandler
 		}
 
 		enableAlpha(alpha);
+		GlStateManager.color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
 		for (int i = startBar; i < startBar + barsNeeded; ++i)
 		{
 			int x = left - i * 8 - 9;
@@ -217,6 +217,7 @@ public class HUDOverlayHandler
 			else if (effectiveSaturationOfBar > 0)
 				mc.ingameGUI.drawTexturedModalRect(x, y, 0, 0, 9, 9);
 		}
+		GlStateManager.color(1f, 1f, 1f, alpha);
 		disableAlpha(alpha);
 
 		// rebind default icons
@@ -331,7 +332,7 @@ public class HUDOverlayHandler
 
 	public static void drawExhaustionOverlay(float exhaustion, Minecraft mc, int left, int top, float alpha)
 	{
-		mc.getTextureManager().bindTexture(modIcons);
+		mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 
 		float maxExhaustion = HungerHelper.getMaxExhaustion(mc.player);
 		// clamp between 0 and 1

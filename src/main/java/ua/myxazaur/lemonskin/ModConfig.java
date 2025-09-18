@@ -1,5 +1,6 @@
 package ua.myxazaur.lemonskin;
 
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
@@ -59,6 +60,77 @@ public class ModConfig {
 		@Config.LangKey("show.food.stats.in.debug.overlay")
 		@Config.Comment("If true, adds a line that shows your hunger, saturation, and exhaustion level in the F3 debug overlay")
 		public boolean SHOW_FOOD_DEBUG_INFO = true;
+
+		@Config.Name("Custom Saturation Color")
+		@Config.LangKey("custom.saturation.color")
+		@Config.Comment("Set a custom color for the saturation HUD/Tooltip overlay using hex color code")
+		public String CUSTOM_COLOR = "#FFDF00";
+
+		@Config.Name("Use Custom Saturation Color")
+		@Config.LangKey("use.custom.saturation.color")
+		@Config.Comment("Enable to use the custom saturation color instead of default")
+		public boolean USE_CUSTOM_COLOR = false;
+
+		public RGB getColor()
+		{
+			return USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);
+		}
+
+		public ResourceLocation getIcons()
+		{
+			return new ResourceLocation(Tags.MOD_ID, "textures/" +
+					(USE_CUSTOM_COLOR ? "icons_monochrome.png" : "icons.png"));
+		}
+	}
+
+	public static class RGB
+	{
+		private final float red, green, blue;
+
+		public RGB (float red, float green, float blue)
+		{
+			this.red   = red;
+			this.green = green;
+			this.blue  = blue;
+		}
+
+		public float getRed() {
+			return red;
+		}
+
+		public float getGreen() {
+			return green;
+		}
+
+		public float getBlue() {
+			return blue;
+		}
+	}
+
+	public static RGB fromHex(String hex)
+	{
+		if (hex == null) {
+			return new RGB(1f, 1f, 1f);
+		}
+
+		try {
+			String cleanHex = hex.trim();
+			if (cleanHex.startsWith("#")) {
+				cleanHex = cleanHex.substring(1);
+			}
+
+			if (cleanHex.length() != 6) {
+				return new RGB(1f, 1f, 1f);
+			}
+
+			int r = Integer.parseInt(cleanHex.substring(0, 2), 16);
+			int g = Integer.parseInt(cleanHex.substring(2, 4), 16);
+			int b = Integer.parseInt(cleanHex.substring(4, 6), 16);
+
+			return new RGB(r / 255f, g / 255f, b / 255f);
+		} catch (Exception e) {
+			return new RGB(1f, 1f, 1f);
+		}
 	}
 
 	@Mod.EventBusSubscriber(modid = Tags.MOD_ID)
