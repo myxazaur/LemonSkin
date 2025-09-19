@@ -1,4 +1,4 @@
-package ua.myxazaur.lemonskin;
+package ua.myxazaur.lemonskin.asm;
 
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Optional;
