@@ -11,10 +11,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import ua.myxazaur.lemonskin.client.DebugInfoHandler;
-import ua.myxazaur.lemonskin.client.GrayIconsReloader;
-import ua.myxazaur.lemonskin.client.HUDOverlayHandler;
-import ua.myxazaur.lemonskin.client.TooltipOverlayHandler;
+import ua.myxazaur.lemonskin.client.*;
 import ua.myxazaur.lemonskin.helpers.BetterWithModsHelper;
 import ua.myxazaur.lemonskin.network.SyncHandler;
 
@@ -22,7 +19,9 @@ import ua.myxazaur.lemonskin.network.SyncHandler;
 public class LemonSkin {
 
     public static Logger Log = LogManager.getLogger(Tags.MOD_ID);
-    public static ResourceLocation grayIcons;
+    public static ResourceLocation  grayIcons;
+    public static ClientTickHandler tickHandler;
+
     public static boolean hasAppleCore = false;
     public static boolean hasAppleSkin = false;
 
@@ -46,9 +45,10 @@ public class LemonSkin {
         if (event.getSide() == Side.CLIENT)
         {
             DebugInfoHandler.init();
-            HUDOverlayHandler.init();
             TooltipOverlayHandler.init();
 
+            tickHandler = new ClientTickHandler();
+            MinecraftForge.EVENT_BUS.register(tickHandler);
             ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new GrayIconsReloader());
         }
     }

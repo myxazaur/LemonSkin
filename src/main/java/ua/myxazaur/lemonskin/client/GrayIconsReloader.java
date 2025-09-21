@@ -5,6 +5,8 @@ import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.Tags;
 
@@ -17,6 +19,7 @@ import java.io.IOException;
  * Gray icons are used for customizable saturation color
  * @see ua.myxazaur.lemonskin.ModConfig
  */
+@SideOnly(Side.CLIENT)
 public class GrayIconsReloader implements IResourceManagerReloadListener
 {
     @Override
