@@ -1,4 +1,4 @@
-package ua.myxazaur.lemonskin.mixin;
+package ua.myxazaur.lemonskin.mixin.forge;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,6 +19,7 @@ import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
 import ua.myxazaur.lemonskin.helpers.HealthHelper;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
+import ua.myxazaur.lemonskin.mixin.vanilla.GuiIngameAccessor;
 
 import static net.minecraftforge.client.GuiIngameForge.right_height;
 import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
@@ -27,6 +28,7 @@ import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
 public abstract class GuiIngameForgeMixin
 {
     // Exhaustion underlay rendering
+    @SuppressWarnings("MixinAnnotationTarget")
     @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;func_76320_a(Ljava/lang/String;)V"), remap = false)
     public void preRenderFood(int width, int height, CallbackInfo ci)
     {

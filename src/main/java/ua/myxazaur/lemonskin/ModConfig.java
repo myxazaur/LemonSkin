@@ -71,6 +71,11 @@ public class ModConfig {
 		@Config.Comment("Enable to use the custom saturation color instead of default")
 		public boolean USE_CUSTOM_COLOR = false;
 
+        @Config.Name("Recipe Book Tooltip fix")
+        @Config.Comment("Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode")
+        @Config.RequiresMcRestart
+        public boolean RECIPE_BOOK_TOOLTIP_FIX = true;
+
 		public RGB getColor()
 		{
 			return USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);

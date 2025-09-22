@@ -1,4 +1,4 @@
-package ua.myxazaur.lemonskin.mixin;
+package ua.myxazaur.lemonskin.mixin.mods;
 
 import mezz.jei.gui.TooltipRenderer;
 import net.minecraft.client.Minecraft;

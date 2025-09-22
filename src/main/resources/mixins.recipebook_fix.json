@@ -8,8 +8,6 @@
 	"mixins": [],
 	"server": [],
 	"client": [
-      "forge.GuiIngameForgeMixin",
-      "forge.GuiUtilsMixin",
-      "vanilla.GuiIngameAccessor"
+      "vanilla.RecipeBookPageFix"
     ]
 }

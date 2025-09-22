@@ -1,4 +1,4 @@
-package ua.myxazaur.lemonskin.mixin;
+package ua.myxazaur.lemonskin.mixin.vanilla;
 
 import net.minecraft.client.gui.GuiIngame;
 import org.spongepowered.asm.mixin.Mixin;

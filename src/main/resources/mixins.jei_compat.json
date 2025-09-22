@@ -7,5 +7,7 @@
   "compatibilityLevel": "JAVA_8",
   "mixins": [],
   "server": [],
-  "client": ["JEI_TooltipRendererMixin"]
+  "client": [
+    "mods.JEI_TooltipRendererMixin"
+  ]
 }
