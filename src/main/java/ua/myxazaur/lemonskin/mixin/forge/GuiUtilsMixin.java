@@ -28,7 +28,10 @@ public abstract class GuiUtilsMixin {
     @ModifyVariable(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
             at = @At(value = "STORE", ordinal = 0),
             name = "tooltipTextWidth", remap = false)
-    private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines) {
+    private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
+    {
+        if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP || !FoodHelper.isFood(stack)) return tooltipTextWidth;
+
         int spacesNeeded = lemonSkin$getSpacesNeeded(stack) * 4;
         return Math.max(tooltipTextWidth, spacesNeeded);
     }
