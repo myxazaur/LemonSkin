@@ -38,7 +38,7 @@ public abstract class GuiUtilsMixin {
     private static void reserveSpace(ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font, CallbackInfo ci)
     {
         try {
-            if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
+            if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP || !FoodHelper.isFood(stack)) return;
             if (textLines != null && !textLines.isEmpty()) {
                 List<String> mutable = new ArrayList<>(textLines);
                 mutable.removeIf(line -> line != null && line.contains("\u00A0"));
