@@ -6,10 +6,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemFood;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import ua.myxazaur.lemonskin.LemonSkin;
-
-import java.lang.reflect.Field;
+import ua.myxazaur.lemonskin.mixin.vanilla.ItemFoodAccessor;
 
 public class FoodHelper
 {
@@ -83,19 +81,12 @@ public class FoodHelper
 		{
 			if (!(item instanceof ItemFood)) return null;
 			itemFood = (ItemFood) item;
-			Field potionIdField = ReflectionHelper.findField(
-					ItemFood.class, "potionId", "field_77851_ca");
 
-			return (PotionEffect) potionIdField.get(itemFood);
-		}
-		catch (IllegalAccessException | IllegalArgumentException e)
-		{
-			LemonSkin.Log.error("Error getting effects from food", e);
-			return null;
+            return ((ItemFoodAccessor) itemFood).getPotionId();
 		}
 		catch (Exception e)
 		{
-			LemonSkin.Log.warn("Could not access potionId field for effects");
+			LemonSkin.Log.error("Error getting potion id", e);
 			return null;
 		}
     }

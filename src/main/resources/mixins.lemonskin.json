@@ -10,6 +10,7 @@
 	"client": [
       "forge.GuiIngameForgeMixin",
       "forge.GuiUtilsMixin",
-      "vanilla.GuiIngameAccessor"
+      "vanilla.GuiIngameAccessor",
+      "vanilla.ItemFoodAccessor"
     ]
 }
