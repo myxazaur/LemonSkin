@@ -20,7 +20,7 @@ import java.util.Random;
 public final class HUDOverlayRenderer {
 
     @Deprecated
-    private static int updateCounter = 0;
+    private static final int updateCounter = 0;
 
     /** @deprecated use {@link #drawSaturationOverlay(float, float, Minecraft, int, int, float, int)} */
     @Deprecated
@@ -41,7 +41,7 @@ public final class HUDOverlayRenderer {
 
         mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 
-        Random rand = new Random((long) _updateCounter * 312871L);
+        Random rand = new Random(_updateCounter * 312871L);
         boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F
                 && _updateCounter % (mc.player.getFoodStats().getFoodLevel() * 3 + 1) == 0
                 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
@@ -95,7 +95,7 @@ public final class HUDOverlayRenderer {
         mc.getTextureManager().bindTexture(Gui.ICONS);
         enableAlpha(alpha);
 
-        Random rand = new Random((long) _updateCounter * 312871L);
+        Random rand = new Random(_updateCounter * 312871L);
         boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F
                 && _updateCounter % (foodLevel * 3 + 1) == 0
                 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
@@ -161,18 +161,18 @@ public final class HUDOverlayRenderer {
         float healthMax = player.getMaxHealth();
         float absorb    = player.getAbsorptionAmount();
         int healthBars  = MathHelper.ceil((healthMax + absorb) / 2.0F);
-        int healthRows  = MathHelper.ceil((float) healthBars / 10.0F);
+        int healthRows  = MathHelper.ceil(healthBars / 10.0F);
         int rowHeight   = Math.max(10 - (healthRows - 2), 3);
 
         boolean shouldShake = current <= 4 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
 
         for (int i = start; i < end; i++) {
-            int rowIndex = (int) Math.ceil((float) (i + 1) / 10.0F) - 1;
+            int rowIndex = (int) Math.ceil((i + 1) / 10.0F) - 1;
             int x = left + (i % 10) * 8;
             int y = top - (rowIndex * rowHeight);
 
             if (shouldShake) {
-                Random rand = new Random((long) _updateCounter * 312871L);
+                Random rand = new Random(_updateCounter * 312871L);
                 int skips = healthBars - 1 - i;
                 for (int j = 0; j < skips; j++) rand.nextInt(2);
                 y += rand.nextInt(2);

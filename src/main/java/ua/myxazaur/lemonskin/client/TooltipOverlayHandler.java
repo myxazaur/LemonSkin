@@ -23,11 +23,10 @@ import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.helpers.*;
 
+@SuppressWarnings("DataFlowIssue")
 @SideOnly(Side.CLIENT)
 public class TooltipOverlayHandler
 {
-	// private static final ResourceLocation MOD_ICONS =
-	// 		new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
 	private ItemStack cachedStack = ItemStack.EMPTY;
 
 	/* Legacy constants -------------------------------------------------- */
