@@ -11,6 +11,7 @@
       "forge.GuiIngameForgeMixin",
       "forge.GuiUtilsMixin",
       "vanilla.GuiIngameAccessor",
-      "vanilla.ItemFoodAccessor"
+      "vanilla.ItemFoodAccessor",
+      "vanilla.FoodStatsAccessor"
     ]
 }
