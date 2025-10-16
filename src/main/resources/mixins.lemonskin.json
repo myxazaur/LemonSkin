@@ -5,13 +5,13 @@
 	"target": "@env(DEFAULT)",
 	"minVersion": "0.8.5",
 	"compatibilityLevel": "JAVA_8",
-	"mixins": [],
+	"mixins": [
+      "vanilla.ItemFoodAccessor",
+      "vanilla.FoodStatsAccessor"],
 	"server": [],
 	"client": [
       "forge.GuiIngameForgeMixin",
       "forge.GuiUtilsMixin",
-      "vanilla.GuiIngameAccessor",
-      "vanilla.ItemFoodAccessor",
-      "vanilla.FoodStatsAccessor"
+      "vanilla.GuiIngameAccessor"
     ]
 }
