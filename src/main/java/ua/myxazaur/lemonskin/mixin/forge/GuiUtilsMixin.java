@@ -13,10 +13,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
-import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
-import ua.myxazaur.lemonskin.helpers.BetterWithModsHelper;
-import ua.myxazaur.lemonskin.helpers.FoodHelper;
-import ua.myxazaur.lemonskin.helpers.TooltipHelper;
+import ua.myxazaur.lemonskin.helpers.*;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
@@ -30,7 +27,11 @@ public abstract class GuiUtilsMixin {
             name = "tooltipTextWidth", remap = false)
     private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
     {
-        if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP || !FoodHelper.isFood(stack)) return tooltipTextWidth;
+        boolean shouldShow =
+                (ModConfig.CLIENT.USE_MODERN_TOOLTIP &&
+                        (ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
+                        ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP);
+        if (!shouldShow || !FoodHelper.isFood(stack)) return tooltipTextWidth;
 
         int spacesNeeded = lemonSkin$getSpacesNeeded(stack) * 4;
         return Math.max(tooltipTextWidth, spacesNeeded);
