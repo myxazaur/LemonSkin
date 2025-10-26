@@ -9,6 +9,7 @@ import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.FoodStats;
 import net.minecraftforge.client.GuiIngameForge;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -27,6 +28,10 @@ import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
 @Mixin(GuiIngameForge.class)
 public abstract class GuiIngameForgeMixin
 {
+
+    @Unique
+    private static int ls$foodRightHeight = 0;
+
     // Exhaustion underlay rendering
     @SuppressWarnings("MixinAnnotationTarget")
     @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;func_76320_a(Ljava/lang/String;)V"), remap = false)
@@ -42,6 +47,11 @@ public abstract class GuiIngameForgeMixin
         int top  = height - right_height;
 
         HUDOverlayRenderer.drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
+    }
+
+    @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/FoodStats;getFoodLevel()I"))
+    public void cacheRightHeight(int width, int height, CallbackInfo ci) {
+        ls$foodRightHeight = right_height;
     }
 
     // Saturation / Hunger overlay rendering
@@ -62,7 +72,7 @@ public abstract class GuiIngameForgeMixin
         FoodStats stats  = player.getFoodStats();
 
         int left = width / 2 + 91;
-        int top  = height - right_height + 10;
+        int top  = height - ls$foodRightHeight + 10;
 
         // Saturation overlay
         if (ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
