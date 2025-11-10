@@ -10,6 +10,7 @@ show.vanilla.animations.overlay=Show Vanilla Animations
 show.food.stats.in.debug.overlay=Show Food Stats in F3
 custom.saturation.color=Custom Saturation Color
 use.custom.saturation.color=Use Custom Saturation Color
+update.overlay.pause=Update Overlays When Game Is Paused
 
 # Tooltips
 use.modern.tooltip.tooltip=true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)
@@ -23,3 +24,4 @@ show.vanilla.animations.overlay.tooltip=If true, hunger and health overlay will 
 show.food.stats.in.debug.overlay.tooltip=If true, adds a line that shows your hunger, saturation, and exhaustion level in the F3 debug overlay
 custom.saturation.color.tooltip=Set a custom color for the saturation HUD/Tooltip overlay using hex color code
 use.custom.saturation.color.tooltip=Enable to use the custom saturation color instead of default
+update.overlay.pause.tooltip=If true, HUD overlay animations will be updated when the game is paused

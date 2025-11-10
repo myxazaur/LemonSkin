@@ -1,0 +1,27 @@
+# Config GUI
+use.modern.tooltip=Сучасний рендеринг підказок
+show.food.values.in.tooltip=Показувати значення їжі у підказці
+show.food.values.in.tooltip.always=Завжди показувати значення їжі
+show.saturation.hud.overlay=Показувати насичення у HUD
+show.food.values.hud.overlay=Показувати значення їжі у HUD
+show.food.exhaustion.hud.underlay=Показувати виснаження у HUD
+show.food.health.hud.overlay=Показувати здоров'я у HUD
+show.vanilla.animations.overlay=Показувати ванільні анімації
+show.food.stats.in.debug.overlay=Показувати статистику їжі у F3
+custom.saturation.color=Власний колір насичення
+use.custom.saturation.color=Використовувати власний колір насичення
+update.overlay.pause=Оновлювати HUD коли гра на паузі
+
+# Tooltips
+use.modern.tooltip.tooltip=true  – малювати лінії безпосередньо у підказці\nfalse – малювати на окремому плаваючому фоні (legacy)
+show.food.values.in.tooltip.tooltip=Якщо увімкнено, показує значення голоду та насичення їжі у підказці при затиснутій клавіші SHIFT
+show.food.values.in.tooltip.always.tooltip=Якщо увімкнено, автоматично показує значення голоду та насичення їжі у підказці (без необхідності затискати SHIFT)
+show.saturation.hud.overlay.tooltip=Якщо увімкнено, показує ваш поточний рівень насичення поверх смужок голоду
+show.food.values.hud.overlay.tooltip=Якщо увімкнено, показує голод (та насичення), які будуть відновлені їжею, яку ви тримаєте
+show.food.exhaustion.hud.underlay.tooltip=Якщо увімкнено, показує ваше виснаження у вигляді смуги прогресу за смужками голоду
+show.food.health.hud.overlay.tooltip=Якщо увімкнено, відображає орієнтовну кількість здоров'я, що відновлюється їжею, на шкалі здоров'я
+show.vanilla.animations.overlay.tooltip=Якщо увімкнено, смужки голоду та здоров'я тремтітимуть відповідно до анімацій Minecraft
+show.food.stats.in.debug.overlay.tooltip=Якщо увімкнено, додає рядок із вашим голодом, насиченням та виснаженням у мені налагодження F3
+custom.saturation.color.tooltip=Встановити власний колір для іконок насичення у HUD/Підказці через HEX-код
+use.custom.saturation.color.tooltip=Увімкнути використання власного кольору насичення замість стандартного
+update.overlay.pause.tooltip=Якщо увімкнено, анімації HUD оновлюватимуться при призупиненні гри

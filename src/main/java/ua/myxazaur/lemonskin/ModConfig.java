@@ -76,6 +76,11 @@ public class ModConfig {
         @Config.RequiresMcRestart
         public boolean RECIPE_BOOK_TOOLTIP_FIX = true;
 
+        @Config.Name("Update Overlays When Game Is Paused")
+        @Config.LangKey("update.overlay.pause")
+        @Config.Comment("If true, HUD overlays animations will be updated when the game is paused")
+        public boolean UPDATE_OVERLAY_ON_PAUSE = false;
+
 		public RGB getColor()
 		{
 			return USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);
