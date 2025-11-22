@@ -19,6 +19,11 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * This mixin is intended to reserve space in the tooltip for Modern Tooltip mode
+ * All other logic is implemented in {@link ua.myxazaur.lemonskin.client.TooltipOverlayHandler}
+ */
 @Mixin(GuiUtils.class)
 public abstract class GuiUtilsMixin {
 

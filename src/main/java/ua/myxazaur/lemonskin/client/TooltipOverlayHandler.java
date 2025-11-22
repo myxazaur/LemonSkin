@@ -50,6 +50,7 @@ public class TooltipOverlayHandler
 		if (stack.isEmpty()) return;
 		this.cachedStack = stack;
 
+        // We'll reserve it here in advance, which will help if the mixin doesn't work
 		TooltipHelper.reserveFoodTooltipSpace(event.getToolTip(), stack);
 	}
 
