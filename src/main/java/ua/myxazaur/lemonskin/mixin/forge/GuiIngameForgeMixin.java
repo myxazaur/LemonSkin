@@ -49,7 +49,7 @@ public abstract class GuiIngameForgeMixin
         HUDOverlayRenderer.drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
     }
 
-    @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/FoodStats;getFoodLevel()I"))
+    @Inject(method = "renderFood", at = @At(value = "FIELD", target = "Lnet/minecraftforge/client/GuiIngameForge;right_height:I", shift = At.Shift.AFTER), remap = false)
     public void cacheRightHeight(int width, int height, CallbackInfo ci) {
         ls$foodRightHeight = right_height;
     }
