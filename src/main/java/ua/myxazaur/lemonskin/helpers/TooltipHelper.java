@@ -16,4 +16,11 @@ public class TooltipHelper {
         tooltip.add("\u00A0");
         tooltip.add("\u00A0");
     }
+
+    public static boolean shouldShowFoodTooltip(ItemStack stack)
+    {
+        return FoodHelper.isFood(stack) && (ModConfig.CLIENT.USE_MODERN_TOOLTIP &&
+                        (ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
+                        ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP);
+    }
 }

@@ -67,10 +67,7 @@ public class TooltipOverlayHandler
 			stack = this.cachedStack;
 		}
 
-		boolean shouldShow =
-				(ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
-						ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP;
-		if (!shouldShow || !FoodHelper.isFood(stack)) return;
+		if (!TooltipHelper.shouldShowFoodTooltip(stack)) return;
 
 		Minecraft mc = Minecraft.getMinecraft();
 		GuiScreen gui = mc.currentScreen;

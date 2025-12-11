@@ -19,7 +19,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * This mixin is intended to reserve space in the tooltip for Modern Tooltip mode
  * All other logic is implemented in {@link ua.myxazaur.lemonskin.client.TooltipOverlayHandler}
@@ -32,18 +31,14 @@ public abstract class GuiUtilsMixin {
             name = "tooltipTextWidth", remap = false)
     private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
     {
-        boolean shouldShow =
-                (ModConfig.CLIENT.USE_MODERN_TOOLTIP &&
-                        (ModConfig.CLIENT.SHOW_FOOD_VALUES_IN_TOOLTIP && KeyHelper.isShiftKeyDown()) ||
-                        ModConfig.CLIENT.ALWAYS_SHOW_FOOD_VALUES_TOOLTIP);
-        if (!shouldShow || !FoodHelper.isFood(stack)) return tooltipTextWidth;
+        if (!TooltipHelper.shouldShowFoodTooltip(stack)) return tooltipTextWidth;
 
         int spacesNeeded = lemonSkin$getSpacesNeeded(stack) * 4;
         return Math.max(tooltipTextWidth, spacesNeeded);
     }
 
     @Inject(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
-    at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/event/RenderTooltipEvent$Pre;getX()I"), remap = false)
+            at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/event/RenderTooltipEvent$Pre;getX()I"), remap = false)
     private static void reserveSpace(ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font, CallbackInfo ci)
     {
         try {

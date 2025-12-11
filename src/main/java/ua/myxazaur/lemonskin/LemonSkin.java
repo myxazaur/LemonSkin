@@ -1,10 +1,6 @@
 package ua.myxazaur.lemonskin;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -14,8 +10,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import ua.myxazaur.lemonskin.client.*;
-import ua.myxazaur.lemonskin.helpers.BetterWithModsHelper;
-import ua.myxazaur.lemonskin.network.SyncHandler;
 import ua.myxazaur.lemonskin.proxy.CommonProxy;
 
 @Mod(modid = Tags.MOD_ID, name = Tags.MOD_NAME, version = Tags.VERSION)
