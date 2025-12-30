@@ -12,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ua.myxazaur.lemonskin.LemonSkin;
-import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.helpers.*;
 
 import javax.annotation.Nonnull;
@@ -24,14 +23,14 @@ import java.util.List;
  * All other logic is implemented in {@link ua.myxazaur.lemonskin.client.TooltipOverlayHandler}
  */
 @Mixin(GuiUtils.class)
-public abstract class GuiUtilsMixin {
-
+public abstract class GuiUtilsMixin
+{
     @ModifyVariable(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
             at = @At(value = "STORE", ordinal = 0),
             name = "tooltipTextWidth", remap = false)
     private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
     {
-        if (!TooltipHelper.shouldShowFoodTooltip(stack)) return tooltipTextWidth;
+        if (!TooltipHelper.shouldShowModernTooltip(stack)) return tooltipTextWidth;
 
         int spacesNeeded = lemonSkin$getSpacesNeeded(stack) * 4;
         return Math.max(tooltipTextWidth, spacesNeeded);
@@ -42,7 +41,7 @@ public abstract class GuiUtilsMixin {
     private static void reserveSpace(ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font, CallbackInfo ci)
     {
         try {
-            if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP || !FoodHelper.isFood(stack)) return;
+            if (!TooltipHelper.shouldShowModernTooltip(stack)) return;
             if (textLines != null && !textLines.isEmpty()) {
                 List<String> mutable = new ArrayList<>(textLines);
                 mutable.removeIf(line -> line != null && line.contains("\u00A0"));

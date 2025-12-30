@@ -2,6 +2,7 @@ package ua.myxazaur.lemonskin.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
+import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
@@ -25,6 +26,12 @@ public class GrayIconsReloader implements IResourceManagerReloadListener
     @Override
     public void onResourceManagerReload(IResourceManager resourceManager) {
         generateGrayIcons(resourceManager);
+    }
+
+    public static void init()
+    {
+        ((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager())
+                .registerReloadListener(new GrayIconsReloader());
     }
 
     private void generateGrayIcons(IResourceManager resourceManager)

@@ -81,6 +81,12 @@ public class ModConfig {
         @Config.Comment("If true, HUD overlays animations will be updated when the game is paused")
         public boolean UPDATE_OVERLAY_ON_PAUSE = false;
 
+        @Config.Name("Max Hud Overlay Flash Alpha")
+        @Config.LangKey("max.flash.alpha")
+        @Config.Comment("Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)")
+        @Config.RangeDouble(min = 0.0, max = 1.0)
+        public float MAX_HUD_OVERLAY_FLASH_ALPHA = 0.65f;
+
 		public RGB getColor()
 		{
 			return USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);

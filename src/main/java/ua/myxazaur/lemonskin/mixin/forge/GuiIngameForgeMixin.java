@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.FoodStats;
 import net.minecraftforge.client.GuiIngameForge;
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,7 +29,6 @@ import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
 @Mixin(GuiIngameForge.class)
 public abstract class GuiIngameForgeMixin
 {
-
     @Unique
     private static int ls$foodRightHeight = 0;
 
@@ -49,7 +49,7 @@ public abstract class GuiIngameForgeMixin
         HUDOverlayRenderer.drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
     }
 
-    @Inject(method = "renderFood", at = @At(value = "FIELD", target = "Lnet/minecraftforge/client/GuiIngameForge;right_height:I", shift = At.Shift.AFTER), remap = false)
+    @Inject(method = "renderFood", at = @At(value = "FIELD", target = "Lnet/minecraftforge/client/GuiIngameForge;right_height:I", shift = At.Shift.AFTER, opcode = Opcodes.PUTSTATIC), remap = false)
     public void cacheRightHeight(int width, int height, CallbackInfo ci) {
         ls$foodRightHeight = right_height;
     }
@@ -79,14 +79,13 @@ public abstract class GuiIngameForgeMixin
             HUDOverlayRenderer.drawSaturationOverlay(0, stats.getSaturationLevel(), mc, left, top, 1f, updateCounter);
 
         if (!ModConfig.CLIENT.SHOW_FOOD_VALUES_OVERLAY || !FoodHelper.isFood(held))
-        {
-            tickHandler.flashAlpha = 0;
-            tickHandler.alphaDir   = 1;
             return;
-        }
 
         FoodHelper.BasicFoodValues  values = FoodHelper.getModifiedFoodValues(held, player);
         if (LemonSkin.hasAppleCore) values = AppleCoreHelper.getFoodValuesForDisplay(values, player);
+
+        if (!player.canEat(false))
+            return;
 
         // Restored hunger overlay
         HUDOverlayRenderer.drawHungerOverlay(values.hunger, stats.getFoodLevel(),

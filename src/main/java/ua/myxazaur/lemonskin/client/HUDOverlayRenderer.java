@@ -17,8 +17,8 @@ import ua.myxazaur.lemonskin.helpers.HungerHelper;
 import java.util.Random;
 
 @SideOnly(Side.CLIENT)
-public final class HUDOverlayRenderer {
-
+public final class HUDOverlayRenderer
+{
     @Deprecated
     private static final int updateCounter = 0;
 
@@ -178,7 +178,7 @@ public final class HUDOverlayRenderer {
                 y += rand.nextInt(2);
             }
 
-            mc.ingameGUI.drawTexturedModalRect(x, y, 16, topOffset, 9, 9); // background
+            // mc.ingameGUI.drawTexturedModalRect(x, y, 16, topOffset, 9, 9); // background
 
             boolean isHalf = (i * 2 + 1) == healthTarget;
             int u = isHalf ? margin + 45 : margin + 36;

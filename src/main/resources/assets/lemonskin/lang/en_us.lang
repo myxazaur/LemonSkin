@@ -11,6 +11,7 @@ show.food.stats.in.debug.overlay=Show Food Stats in F3
 custom.saturation.color=Custom Saturation Color
 use.custom.saturation.color=Use Custom Saturation Color
 update.overlay.pause=Update Overlays When Game Is Paused
+max.flash.alpha=Max Hud Overlay Flash Alpha
 
 # Tooltips
 use.modern.tooltip.tooltip=true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)
@@ -25,3 +26,4 @@ show.food.stats.in.debug.overlay.tooltip=If true, adds a line that shows your hu
 custom.saturation.color.tooltip=Set a custom color for the saturation HUD/Tooltip overlay using hex color code
 use.custom.saturation.color.tooltip=Enable to use the custom saturation color instead of default
 update.overlay.pause.tooltip=If true, HUD overlay animations will be updated when the game is paused
+max.flash.alpha.tooltip=Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)
