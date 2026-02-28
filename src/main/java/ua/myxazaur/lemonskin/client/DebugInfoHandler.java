@@ -15,31 +15,49 @@ import java.text.DecimalFormat;
 @SideOnly(Side.CLIENT)
 public class DebugInfoHandler
 {
-	private static final DecimalFormat saturationDF = new DecimalFormat("#.##");
-	private static final DecimalFormat exhaustionValDF = new DecimalFormat("0.00");
-	private static final DecimalFormat exhaustionMaxDF = new DecimalFormat("#.##");
+    private static final DecimalFormat saturationDF = new DecimalFormat("#.##");
+    private static final DecimalFormat exhaustionValDF = new DecimalFormat("0.00");
+    private static final DecimalFormat exhaustionMaxDF = new DecimalFormat("#.##");
 
-	public static void init()
-	{
-		MinecraftForge.EVENT_BUS.register(new DebugInfoHandler());
-	}
+    public static void init()
+    {
+        MinecraftForge.EVENT_BUS.register(new DebugInfoHandler());
+    }
 
-	@SubscribeEvent
-	public void onTextRender(RenderGameOverlayEvent.Text textEvent)
-	{
-		if (textEvent.getType() != RenderGameOverlayEvent.ElementType.TEXT)
-			return;
+    @SubscribeEvent
+    public void onTextRender(RenderGameOverlayEvent.Text textEvent)
+    {
+        if (textEvent.getType() != RenderGameOverlayEvent.ElementType.TEXT)
+            return;
 
-		if (!ModConfig.CLIENT.SHOW_FOOD_DEBUG_INFO)
-			return;
+        if (!ModConfig.CLIENT.SHOW_FOOD_DEBUG_INFO)
+            return;
 
-		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.gameSettings.showDebugInfo)
-		{
-			FoodStats stats = mc.player.getFoodStats();
-			float curExhaustion = HungerHelper.getExhaustion(mc.player);
-			float maxExhaustion = HungerHelper.getMaxExhaustion(mc.player);
-			textEvent.getLeft().add("hunger: " + stats.getFoodLevel() + ", sat: " + saturationDF.format(stats.getSaturationLevel()) + ", exh: " + exhaustionValDF.format(curExhaustion) + "/" + exhaustionMaxDF.format(maxExhaustion));
-		}
-	}
+        Minecraft mc = Minecraft.getMinecraft();
+        if (mc.gameSettings.showDebugInfo)
+        {
+            FoodStats stats = mc.player.getFoodStats();
+            float curExhaustion = HungerHelper.getExhaustion(mc.player);
+            float maxExhaustion = HungerHelper.getMaxExhaustion(mc.player);
+
+            String formattedText = formatDebugText(
+                    ModConfig.CLIENT.DEBUG_INFO_FORMAT,
+                    stats.getFoodLevel(),
+                    stats.getSaturationLevel(),
+                    curExhaustion,
+                    maxExhaustion
+            );
+
+            textEvent.getLeft().add(formattedText);
+        }
+    }
+
+    private String formatDebugText(String format, int hunger, float saturation, float exhaustion, float maxExhaustion)
+    {
+        return format
+                .replace("%h", String.valueOf(hunger))
+                .replace("%s", saturationDF.format(saturation))
+                .replace("%eM", exhaustionMaxDF.format(maxExhaustion))
+                .replace("%e", exhaustionValDF.format(exhaustion));
+    }
 }

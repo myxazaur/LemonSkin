@@ -1,4 +1,8 @@
 # Config GUI
+lemonskin.client=Клиент
+lemonskin.mods=Моды
+lemonskin.mantle=Mantle
+
 use.modern.tooltip=Современный рендер тултипа
 show.food.values.in.tooltip=Показывать значения еды в подсказке
 show.food.values.in.tooltip.always=Всегда показывать значения еды
@@ -12,8 +16,14 @@ custom.saturation.color=Пользовательский цвет насыщен
 use.custom.saturation.color=Использовать пользовательский цвет насыщения
 update.overlay.pause=Обновлять HUD когда игра на паузе
 max.flash.alpha=Максимальная непрозрачность мигающих иконок в HUD
+debug.info.format=Формат отладочной информации
+recipe.book.tooltip.fix=Исправление подсказок книги рецептов
 
 # Tooltips
+lemonskin.client.tooltip=Эти настройки доступны только на клиентской стороне
+lemonskin.mods.tooltip=Настройки совместимости и интеграции с другими модами
+lemonskin.mantle.tooltip=Если включено, делает оверлей здоровья совместимым с Mantle
+
 use.modern.tooltip.tooltip=true  – рисовать линии непосредственно внутри подсказки\nfalse – рисовать на отдельном плавающем фоне (legacy)
 show.food.values.in.tooltip.tooltip=Если включено, показывает значения голода и насыщения еды в подсказке при зажатии SHIFT
 show.food.values.in.tooltip.always.tooltip=Если включено, автоматически показывает значения голода и насыщения еды в подсказке (без необходимости зажимать SHIFT)
@@ -27,3 +37,5 @@ custom.saturation.color.tooltip=Установить пользовательс�
 use.custom.saturation.color.tooltip=Включить использование пользовательского цвета насыщения вместо стандартного
 update.overlay.pause.tooltip=Если включено, анимации HUD будут обновляться при приостановке игры
 max.flash.alpha.tooltip=Прозрачность мигающих иконок в пике их видимости (1.0 = полностью непрозрачные, 0.0 = полностью прозрачные)
+debug.info.format.tooltip=Пользовательский формат для статистики еды в отладке (F3). Плейсхолдеры: %h (голод), %s (насыщение), %e (истощение), %eM (макс. истощение)
+recipe.book.tooltip.fix.tooltip=Применить небольшой фикс в книге рецептов, необходимый для корректного отображения подсказок в режиме современного рендера

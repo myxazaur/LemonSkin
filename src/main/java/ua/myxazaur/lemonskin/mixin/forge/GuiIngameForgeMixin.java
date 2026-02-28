@@ -23,18 +23,22 @@ import ua.myxazaur.lemonskin.helpers.HealthHelper;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 import ua.myxazaur.lemonskin.mixin.vanilla.GuiIngameAccessor;
 
+import static net.minecraftforge.client.GuiIngameForge.left_height;
 import static net.minecraftforge.client.GuiIngameForge.right_height;
 import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
 
-@Mixin(GuiIngameForge.class)
+@Mixin(value = GuiIngameForge.class, remap = false)
 public abstract class GuiIngameForgeMixin
 {
     @Unique
     private static int ls$foodRightHeight = 0;
 
+    @Unique
+    private static int ls$healthLeftHeight = 0;
+
     // Exhaustion underlay rendering
     @SuppressWarnings("MixinAnnotationTarget")
-    @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;func_76320_a(Ljava/lang/String;)V"), remap = false)
+    @Inject(method = "renderFood", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;func_76320_a(Ljava/lang/String;)V"))
     public void preRenderFood(int width, int height, CallbackInfo ci)
     {
         if (!ModConfig.CLIENT.SHOW_FOOD_EXHAUSTION_UNDERLAY)
@@ -49,13 +53,13 @@ public abstract class GuiIngameForgeMixin
         HUDOverlayRenderer.drawExhaustionOverlay(HungerHelper.getExhaustion(player), mc, left, top, 1f);
     }
 
-    @Inject(method = "renderFood", at = @At(value = "FIELD", target = "Lnet/minecraftforge/client/GuiIngameForge;right_height:I", shift = At.Shift.AFTER, opcode = Opcodes.PUTSTATIC), remap = false)
+    @Inject(method = "renderFood", at = @At(value = "FIELD", target = "Lnet/minecraftforge/client/GuiIngameForge;right_height:I", shift = At.Shift.AFTER, opcode = Opcodes.PUTSTATIC))
     public void cacheRightHeight(int width, int height, CallbackInfo ci) {
         ls$foodRightHeight = right_height;
     }
 
     // Saturation / Hunger overlay rendering
-    @Inject(method = "renderFood", at = @At("TAIL"), remap = false)
+    @Inject(method = "renderFood", at = @At("TAIL"))
     public void postRenderFood(int width, int height, CallbackInfo ci)
     {
         if (!ModConfig.CLIENT.SHOW_FOOD_VALUES_OVERLAY && !ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
@@ -102,8 +106,13 @@ public abstract class GuiIngameForgeMixin
         }
     }
 
+    @Inject(method = "renderHealth", at = @At("HEAD"))
+    public void cacheLeftHeight(int width, int height, CallbackInfo ci) {
+        ls$healthLeftHeight = left_height;
+    }
+
     // Health overlay rendering
-    @Inject(method = "renderHealth", at = @At("TAIL"), remap = false)
+    @Inject(method = "renderHealth", at = @At("TAIL"))
     public void postRenderHealth(int width, int height, CallbackInfo ci)
     {
         Minecraft    mc     = Minecraft.getMinecraft();
@@ -129,7 +138,6 @@ public abstract class GuiIngameForgeMixin
             if (held.getMetadata() > 0)
                  effect = new PotionEffect(MobEffects.REGENERATION, 400, 1);
             else effect = new PotionEffect(MobEffects.REGENERATION, 100, 1);
-
         }
 
         float heal = HealthHelper.getEstimatedHealthIncrement(player, values, effect);
@@ -140,7 +148,7 @@ public abstract class GuiIngameForgeMixin
         float newHealth     = Math.min(currentHealth + heal, player.getMaxHealth());
 
         int left = width / 2 - 91;
-        int top  = height - right_height;
+        int top  = height - ls$healthLeftHeight;
 
         HUDOverlayRenderer.drawHealthOverlay(currentHealth, newHealth, mc, left, top, tickHandler.flashAlpha, updateCounter);
     }

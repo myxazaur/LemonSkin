@@ -1,4 +1,8 @@
 # Config GUI
+lemonskin.client=Клієнт
+lemonskin.mods=Моди
+lemonskin.mantle=Mantle
+
 use.modern.tooltip=Сучасний рендеринг підказок
 show.food.values.in.tooltip=Показувати значення їжі у підказці
 show.food.values.in.tooltip.always=Завжди показувати значення їжі
@@ -12,8 +16,14 @@ custom.saturation.color=Власний колір насичення
 use.custom.saturation.color=Використовувати власний колір насичення
 update.overlay.pause=Оновлювати HUD коли гра на паузі
 max.flash.alpha=Максимальна непрозорість мерехтливих іконок в HUD
+debug.info.format=Формат налагоджувальної інформації
+recipe.book.tooltip.fix=Виправлення підказок книги рецептів
 
 # Tooltips
+lemonskin.client.tooltip=Ці налаштування доступні тільки на стороні клієнта
+lemonskin.mods.tooltip=Налаштування сумісності та інтеграції з іншими модами
+lemonskin.mantle.tooltip=Якщо увімкнено, робить оверлей здоров'я сумісним з Mantle
+
 use.modern.tooltip.tooltip=true  – малювати лінії безпосередньо у підказці\nfalse – малювати на окремому плаваючому фоні (legacy)
 show.food.values.in.tooltip.tooltip=Якщо увімкнено, показує значення голоду та насичення їжі у підказці при затиснутій клавіші SHIFT
 show.food.values.in.tooltip.always.tooltip=Якщо увімкнено, автоматично показує значення голоду та насичення їжі у підказці (без необхідності затискати SHIFT)
@@ -22,8 +32,10 @@ show.food.values.hud.overlay.tooltip=Якщо увімкнено, показує
 show.food.exhaustion.hud.underlay.tooltip=Якщо увімкнено, показує ваше виснаження у вигляді смуги прогресу за смужками голоду
 show.food.health.hud.overlay.tooltip=Якщо увімкнено, відображає орієнтовну кількість здоров'я, що відновлюється їжею, на шкалі здоров'я
 show.vanilla.animations.overlay.tooltip=Якщо увімкнено, смужки голоду та здоров'я тремтітимуть відповідно до анімацій Minecraft
-show.food.stats.in.debug.overlay.tooltip=Якщо увімкнено, додає рядок із вашим голодом, насиченням та виснаженням у мені налагодження F3
+show.food.stats.in.debug.overlay.tooltip=Якщо увімкнено, додає рядок із вашим голодом, насиченням та виснаженням у меню налагодження F3
 custom.saturation.color.tooltip=Встановити власний колір для іконок насичення у HUD/Підказці через HEX-код
 use.custom.saturation.color.tooltip=Увімкнути використання власного кольору насичення замість стандартного
 update.overlay.pause.tooltip=Якщо увімкнено, анімації HUD оновлюватимуться при призупиненні гри
 max.flash.alpha.tooltip=Прозорість мерехтливих іконок у момент їх максимальної видимості (1.0 = повністю непрозорі, 0.0 = повністю прозорі)
+debug.info.format.tooltip=Власний формат для статистики їжі у налагодженні (F3). Плейсхолдери: %h (голод), %s (насичення), %e (виснаження), %eM (макс. виснаження)
+recipe.book.tooltip.fix.tooltip=Застосувати невелике виправлення у книзі рецептів, необхідне для коректного відображення підказок у режимі сучасного рендерингу

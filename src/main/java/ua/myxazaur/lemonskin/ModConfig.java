@@ -10,11 +10,24 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Config(modid = Tags.MOD_ID)
 public class ModConfig {
 
-	@Config.Name("client")
+	@Config.Name("Client")
+	@Config.LangKey("lemonskin.client")
 	@Config.Comment("These config settings are client-side only")
 	public static ClientCategory CLIENT = new ClientCategory();
 
 	public static class ClientCategory {
+
+		@Config.Name("Mods")
+		@Config.LangKey("lemonskin.mods")
+		@Config.Comment("Compatibility and integration settings with other mods")
+		public ModCompatibility MODS = new ModCompatibility();
+
+		public static class ModCompatibility {
+			@Config.Name("Mantle")
+			@Config.LangKey("lemonskin.mantle")
+			@Config.Comment("If true, makes the health overlay compatible with Mantle")
+			public boolean MANTLE = true;
+		}
 
 		@Config.Name("Use Modern Tooltip Rendering")
 		@Config.LangKey("use.modern.tooltip")
@@ -72,8 +85,8 @@ public class ModConfig {
 		public boolean USE_CUSTOM_COLOR = false;
 
         @Config.Name("Recipe Book Tooltip fix")
+		@Config.LangKey("recipe.book.tooltip.fix")
         @Config.Comment("Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode")
-        @Config.RequiresMcRestart
         public boolean RECIPE_BOOK_TOOLTIP_FIX = true;
 
         @Config.Name("Update Overlays When Game Is Paused")
@@ -86,6 +99,11 @@ public class ModConfig {
         @Config.Comment("Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)")
         @Config.RangeDouble(min = 0.0, max = 1.0)
         public float MAX_HUD_OVERLAY_FLASH_ALPHA = 0.65f;
+
+        @Config.Name("Debug Info Format")
+        @Config.LangKey("debug.info.format")
+        @Config.Comment("Custom format for the food stats debug info (F3).\nPlaceholders: %h (hunger)\n%s (saturation)\\n%e (exhaustion)\n%eM (max exhaustion)")
+        public String DEBUG_INFO_FORMAT = "hunger: %h, sat: %s, exh: %e/%eM";
 
 		public RGB getColor()
 		{
@@ -104,7 +122,7 @@ public class ModConfig {
 	{
 		private final float red, green, blue;
 
-		public RGB (float red, float green, float blue)
+		public RGB(float red, float green, float blue)
 		{
 			this.red   = red;
 			this.green = green;

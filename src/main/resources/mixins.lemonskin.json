@@ -6,12 +6,13 @@
 	"minVersion": "0.8.5",
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
-      "vanilla.ItemFoodAccessor",
-      "vanilla.FoodStatsAccessor"],
+		"vanilla.ItemFoodAccessor",
+		"vanilla.FoodStatsAccessor"],
 	"server": [],
 	"client": [
-      "forge.GuiIngameForgeMixin",
-      "forge.GuiUtilsMixin",
-      "vanilla.GuiIngameAccessor"
+		"forge.GuiIngameForgeMixin",
+		"forge.GuiUtilsMixin",
+		"vanilla.RecipeBookPageFix",
+		"vanilla.GuiIngameAccessor"
     ]
 }

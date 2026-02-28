@@ -22,12 +22,12 @@ import java.util.List;
  * This mixin is intended to reserve space in the tooltip for Modern Tooltip mode
  * All other logic is implemented in {@link ua.myxazaur.lemonskin.client.TooltipOverlayHandler}
  */
-@Mixin(GuiUtils.class)
+@Mixin(value = GuiUtils.class, remap = false)
 public abstract class GuiUtilsMixin
 {
     @ModifyVariable(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
             at = @At(value = "STORE", ordinal = 0),
-            name = "tooltipTextWidth", remap = false)
+            name = "tooltipTextWidth")
     private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
     {
         if (!TooltipHelper.shouldShowModernTooltip(stack)) return tooltipTextWidth;
@@ -37,7 +37,7 @@ public abstract class GuiUtilsMixin
     }
 
     @Inject(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/event/RenderTooltipEvent$Pre;getX()I"), remap = false)
+            at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/event/RenderTooltipEvent$Pre;getX()I"))
     private static void reserveSpace(ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font, CallbackInfo ci)
     {
         try {

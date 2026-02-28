@@ -1,5 +1,5 @@
 {
-	"package": "ua.myxazaur.lemonskin.mixin",
+	"package": "ua.myxazaur.lemonskin.mixin.mantle",
 	"required": true,
 	"refmap": "mixins.lemonskin.refmap.json",
 	"target": "@env(DEFAULT)",
@@ -8,6 +8,6 @@
 	"mixins": [],
 	"server": [],
 	"client": [
-      "vanilla.RecipeBookPageFix"
+		"ExtraHeartRenderHandlerMixin"
     ]
 }

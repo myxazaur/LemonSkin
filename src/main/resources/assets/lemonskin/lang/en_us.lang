@@ -1,4 +1,8 @@
 # Config GUI
+lemonskin.client=Client
+lemonskin.mods=Mods
+lemonskin.mantle=Mantle
+
 use.modern.tooltip=Use Modern Tooltip Rendering
 show.food.values.in.tooltip=Show Food Values in Tooltip
 show.food.values.in.tooltip.always=Show Food Values Always
@@ -12,8 +16,14 @@ custom.saturation.color=Custom Saturation Color
 use.custom.saturation.color=Use Custom Saturation Color
 update.overlay.pause=Update Overlays When Game Is Paused
 max.flash.alpha=Max Hud Overlay Flash Alpha
+debug.info.format=Debug Info Format
+recipe.book.tooltip.fix=Recipe Book Tooltip Fix
 
 # Tooltips
+lemonskin.client.tooltip=These config settings are client-side only
+lemonskin.mods.tooltip=Compatibility and integration settings with other mods
+lemonskin.mantle.tooltip=If true, makes the health overlay compatible with Mantle
+
 use.modern.tooltip.tooltip=true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)
 show.food.values.in.tooltip.tooltip=If true, shows the hunger and saturation values of food in its tooltip while holding SHIFT
 show.food.values.in.tooltip.always.tooltip=If true, shows the hunger and saturation values of food in its tooltip automatically (without needing to hold SHIFT)
@@ -27,3 +37,5 @@ custom.saturation.color.tooltip=Set a custom color for the saturation HUD/Toolti
 use.custom.saturation.color.tooltip=Enable to use the custom saturation color instead of default
 update.overlay.pause.tooltip=If true, HUD overlay animations will be updated when the game is paused
 max.flash.alpha.tooltip=Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)
+debug.info.format.tooltip=Custom format for the food stats debug info (F3).\nPlaceholders: %h (hunger)\n%s (saturation)\n%e (exhaustion)\n%eM (max exhaustion)
+recipe.book.tooltip.fix.tooltip=Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode
