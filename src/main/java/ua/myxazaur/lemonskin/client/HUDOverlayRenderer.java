@@ -11,6 +11,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.lwjgl.opengl.GL11;
+import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 
@@ -21,6 +22,8 @@ public final class HUDOverlayRenderer
 {
     @Deprecated
     private static final int updateCounter = 0;
+
+    private static final Random rand = new Random();
 
     /** @deprecated use {@link #drawSaturationOverlay(float, float, Minecraft, int, int, float, int)} */
     @Deprecated
@@ -41,7 +44,7 @@ public final class HUDOverlayRenderer
 
         mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
 
-        Random rand = new Random(_updateCounter * 312871L);
+        rand.setSeed(_updateCounter * 312871L);
         boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F
                 && _updateCounter % (mc.player.getFoodStats().getFoodLevel() * 3 + 1) == 0
                 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
@@ -72,10 +75,6 @@ public final class HUDOverlayRenderer
         mc.getTextureManager().bindTexture(Gui.ICONS);
     }
 
-    /* ============================================================
-     *  HUNGER OVERLAY
-     * ============================================================ */
-
     /** @deprecated use {@link #drawHungerOverlay(int, int, Minecraft, int, int, float, boolean, int)} */
     @Deprecated
     public static void drawHungerOverlay(int hungerRestored, int foodLevel,
@@ -95,7 +94,7 @@ public final class HUDOverlayRenderer
         mc.getTextureManager().bindTexture(Gui.ICONS);
         enableAlpha(alpha);
 
-        Random rand = new Random(_updateCounter * 312871L);
+        rand.setSeed(_updateCounter * 312871L);
         boolean shouldShake = mc.player.getFoodStats().getSaturationLevel() <= 0.0F
                 && _updateCounter % (foodLevel * 3 + 1) == 0
                 && ModConfig.CLIENT.SHOW_VANILLA_ANIMATION_OVERLAY;
@@ -125,10 +124,6 @@ public final class HUDOverlayRenderer
         }
         disableAlpha(alpha);
     }
-
-    /* ============================================================
-     *  HEALTH OVERLAY
-     * ============================================================ */
 
     /** @deprecated use {@link #drawHealthOverlay(float, float, Minecraft, int, int, float, int)} */
     @Deprecated
@@ -172,7 +167,7 @@ public final class HUDOverlayRenderer
             int y = top - (rowIndex * rowHeight);
 
             if (shouldShake) {
-                Random rand = new Random(_updateCounter * 312871L);
+                rand.setSeed(_updateCounter * 312871L);
                 int skips = healthBars - 1 - i;
                 for (int j = 0; j < skips; j++) rand.nextInt(2);
                 y += rand.nextInt(2);
@@ -188,7 +183,7 @@ public final class HUDOverlayRenderer
     }
 
     public static void drawExhaustionOverlay(float exhaustion, Minecraft mc, int left, int top, float alpha) {
-        mc.getTextureManager().bindTexture(ModConfig.CLIENT.getIcons());
+        mc.getTextureManager().bindTexture(LemonSkin.ICONS);
         float maxExhaustion = HungerHelper.getMaxExhaustion(mc.player);
         float ratio = Math.min(1, Math.max(0, exhaustion / maxExhaustion));
         int width = (int) (ratio * 81);

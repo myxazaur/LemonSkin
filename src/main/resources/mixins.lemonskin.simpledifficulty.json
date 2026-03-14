@@ -1,0 +1,13 @@
+{
+	"package": "ua.myxazaur.lemonskin.mixin.simpledifficulty",
+	"required": true,
+	"refmap": "mixins.lemonskin.refmap.json",
+	"target": "@env(DEFAULT)",
+	"minVersion": "0.8.5",
+	"compatibilityLevel": "JAVA_8",
+	"mixins": [],
+	"server": [],
+	"client": [
+		"ThirstGuiMixin"
+    ]
+}

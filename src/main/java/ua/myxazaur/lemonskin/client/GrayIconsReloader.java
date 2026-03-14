@@ -38,9 +38,7 @@ public class GrayIconsReloader implements IResourceManagerReloadListener
     {
         try {
             BufferedImage image = ImageIO.read(
-                    resourceManager.getResource(
-                            new ResourceLocation(Tags.MOD_ID, "textures/icons.png")
-                    ).getInputStream()
+                    resourceManager.getResource(LemonSkin.ICONS).getInputStream()
             );
 
             DynamicTexture grayTex = new DynamicTexture(toGrayscale(image));

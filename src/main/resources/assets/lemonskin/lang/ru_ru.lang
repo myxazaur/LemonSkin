@@ -1,7 +1,6 @@
 # Config GUI
 lemonskin.client=Клиент
 lemonskin.mods=Моды
-lemonskin.mantle=Mantle
 
 use.modern.tooltip=Современный рендер тултипа
 show.food.values.in.tooltip=Показывать значения еды в подсказке
@@ -22,7 +21,6 @@ recipe.book.tooltip.fix=Исправление подсказок книги р�
 # Tooltips
 lemonskin.client.tooltip=Эти настройки доступны только на клиентской стороне
 lemonskin.mods.tooltip=Настройки совместимости и интеграции с другими модами
-lemonskin.mantle.tooltip=Если включено, делает оверлей здоровья совместимым с Mantle
 
 use.modern.tooltip.tooltip=true  – рисовать линии непосредственно внутри подсказки\nfalse – рисовать на отдельном плавающем фоне (legacy)
 show.food.values.in.tooltip.tooltip=Если включено, показывает значения голода и насыщения еды в подсказке при зажатии SHIFT
@@ -37,5 +35,31 @@ custom.saturation.color.tooltip=Установить пользовательс�
 use.custom.saturation.color.tooltip=Включить использование пользовательского цвета насыщения вместо стандартного
 update.overlay.pause.tooltip=Если включено, анимации HUD будут обновляться при приостановке игры
 max.flash.alpha.tooltip=Прозрачность мигающих иконок в пике их видимости (1.0 = полностью непрозрачные, 0.0 = полностью прозрачные)
-debug.info.format.tooltip=Пользовательский формат для статистики еды в отладке (F3). Плейсхолдеры: %h (голод), %s (насыщение), %e (истощение), %eM (макс. истощение)
+debug.info.format.tooltip=Пользовательский формат для статистики еды в отладке (F3). Плейсхолдеры:\n%%h (голод)\n%%s (насыщение)\n%%e (истощение)\n%%eM (макс. истощение)
 recipe.book.tooltip.fix.tooltip=Применить небольшой фикс в книге рецептов, необходимый для корректного отображения подсказок в режиме современного рендера
+
+# ============= MODS =============
+
+# Mantle
+lemonskin.mantle=Mantle
+lemonskin.mantle.tooltip=Если включено, делает оверлей здоровья совместимым с Mantle
+
+# Simple Difficulty
+lemonskin.simpledifficulty=Simple Difficulty
+show.thirst.exhaustion.underlay=Показывать истощение жажды в HUD
+show.thirst.values.hud.overlay=Показывать значения жажды в HUD
+show.thirst.saturation.hud.overlay=Показывать гидратацию в HUD
+show.drink.values.in.tooltip=Показывать значения напитков в подсказке
+show.drink.values.in.tooltip.always=Всегда показывать значения напитков
+show.thirst.stats.in.debug.overlay=Показывать статистику жажды в F3
+thirst.debug.info.format=Формат отладочной информации жажды
+
+# Simple Difficulty Tooltips
+lemonskin.simpledifficulty.tooltip=Настройки интеграции с модом Simple Difficulty
+show.thirst.exhaustion.underlay.tooltip=Если включено, показывает истощение жажды в виде прогресс-бара за полосками жажды
+show.thirst.values.hud.overlay.tooltip=Если включено, показывает жажду, которая будет восстановлена напитком, который вы держите
+show.thirst.saturation.hud.overlay.tooltip=Если включено, показывает гидратацию, которая будет восстановлена напитком, который вы держите
+show.drink.values.in.tooltip.tooltip=Если включено, показывает значения жажды и гидратации напитков в подсказке при зажатии SHIFT
+show.drink.values.in.tooltip.always.tooltip=Если включено, автоматически показывает значения жажды и гидратации напитков в подсказке
+show.thirst.stats.in.debug.overlay.tooltip=Если включено, добавляет строку с вашей жаждой, гидратацией и истощением в отладочном меню F3
+thirst.debug.info.format.tooltip=Пользовательский формат для статистики жажды в отладке (F3). Плейсхолдеры:\n%%t (жажда)\n%%s (гидратация)\n%%e (истощение)\n%%eM (макс. истощение)

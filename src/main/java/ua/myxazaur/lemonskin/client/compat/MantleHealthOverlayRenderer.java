@@ -20,6 +20,8 @@ public class MantleHealthOverlayRenderer
     private static final ResourceLocation MANTLE_HEARTS = new ResourceLocation("mantle", "textures/gui/hearts.png");
     private static final ResourceLocation VANILLA_ICONS = Gui.ICONS;
 
+    private static final Random rand = new Random();
+
     public static void drawHealthOverlay(
             float currentHealth,
             float newHealth,
@@ -74,7 +76,7 @@ public class MantleHealthOverlayRenderer
             int y = top;
 
             if (tier == 0 && shouldShake) {
-                Random rand = new Random(updateCounter * 312871L);
+                rand.setSeed(updateCounter * 312871L);
                 for (int j = healthBars - 1; j > i; j--) rand.nextInt(2);
                 y += rand.nextInt(2);
             }

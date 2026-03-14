@@ -9,6 +9,8 @@ import net.minecraft.potion.PotionEffect;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.mixin.vanilla.ItemFoodAccessor;
 
+import javax.annotation.Nullable;
+
 public class FoodHelper
 {
 	public static class BasicFoodValues
@@ -49,7 +51,8 @@ public class FoodHelper
 
 	public static boolean isFood(ItemStack itemStack)
 	{
-		if (itemStack == null || itemStack.isEmpty()) return false;
+		if (itemStack == null || itemStack.isEmpty())
+			return false;
 
 		if (LemonSkin.hasAppleCore)
 			return AppleCoreHelper.isFood(itemStack);
@@ -63,32 +66,37 @@ public class FoodHelper
         return effect != null && effect.getPotion() == MobEffects.HUNGER;
     }
 
-	public static PotionEffect getEffect(ItemStack itemStack) {
-		if (itemStack == null || itemStack.isEmpty())
-		{
+	@Nullable
+	public static PotionEffect getHealingEffect(ItemStack itemStack)
+	{
+		if (!isFood(itemStack))
 			return null;
+
+		// 1. Check registry for special items
+		PotionEffect registryEffect = FoodEffectRegistry.getHealingEffect(itemStack);
+		if (registryEffect != null) return registryEffect;
+
+		// 2. Fall back to vanilla ItemFood.getPotionId()
+		PotionEffect vanillaEffect = getEffect(itemStack);
+		if (vanillaEffect != null && vanillaEffect.getPotion() == MobEffects.REGENERATION)
+		{
+			return vanillaEffect;
 		}
 
+		return null;
+	}
+
+	public static PotionEffect getEffect(ItemStack itemStack) {
 		if (!(isFood(itemStack)))
-		{
 			return null;
-		}
 
 		ItemFood itemFood;
 		Item item = itemStack.getItem();
 
-		try
-		{
-			if (!(item instanceof ItemFood)) return null;
-			itemFood = (ItemFood) item;
+		if (!(item instanceof ItemFood)) return null;
+		itemFood = (ItemFood) item;
 
-            return ((ItemFoodAccessor) itemFood).getPotionId();
-		}
-		catch (Exception e)
-		{
-			LemonSkin.Log.error("Error getting potion id", e);
-			return null;
-		}
+		return ((ItemFoodAccessor) itemFood).getPotionId();
     }
 
 	public static BasicFoodValues getDefaultFoodValues(ItemStack itemStack)

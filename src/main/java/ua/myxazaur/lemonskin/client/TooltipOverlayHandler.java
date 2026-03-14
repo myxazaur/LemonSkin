@@ -17,10 +17,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
+import ua.myxazaur.lemonskin.Tags;
+import ua.myxazaur.lemonskin.client.compat.ThirstTooltipHandler;
 import ua.myxazaur.lemonskin.helpers.*;
 
 @SuppressWarnings("DataFlowIssue")
@@ -29,18 +32,22 @@ public class TooltipOverlayHandler
 {
 	private ItemStack cachedStack = ItemStack.EMPTY;
 
-	/* Legacy constants -------------------------------------------------- */
 	private static final int LEGACY_BOTTOM_OFFSET = 3;
 	private static final int LEGACY_TOP_OFFSET    = -3;
+
+	private static final ResourceLocation THIRST_OVERLAY = new ResourceLocation(Tags.MOD_ID, "textures/waterskin.png");
+	private static final ResourceLocation THIRST_OVERLAY_CLASSIC = new ResourceLocation(Tags.MOD_ID, "textures/waterskin_classic.png");
 
 	public static void init()
 	{
 		MinecraftForge.EVENT_BUS.register(new TooltipOverlayHandler());
 	}
 
-	/* ------------------------------------------------------------------ */
-	/* 1)  Inject blank lines so Forge reserves space (Modern mode only)  */
-	/* ------------------------------------------------------------------ */
+	private static ResourceLocation getThirstTexture()
+	{
+		return SimpleDifficultyHelper.useClassicHUD() ? THIRST_OVERLAY_CLASSIC : THIRST_OVERLAY;
+	}
+
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onItemTooltip(ItemTooltipEvent event)
 	{
@@ -50,19 +57,14 @@ public class TooltipOverlayHandler
 		if (stack.isEmpty()) return;
 		this.cachedStack = stack;
 
-        // We'll reserve it here in advance, which will help if the mixin doesn't work
 		TooltipHelper.reserveFoodTooltipSpace(event.getToolTip(), stack);
 	}
 
-	/* ------------------------------------------------------------------ */
-	/* 2)  Actual rendering                                               */
-	/* ------------------------------------------------------------------ */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public void onRenderTooltip(RenderTooltipEvent.PostText event)
 	{
 		ItemStack stack = event.getStack();
 		if (stack.isEmpty()) {
-			// Forge gives empty ItemStack if tooltip rendering called from recipe book method
 			if (this.cachedStack == null) return;
 			stack = this.cachedStack;
 		}
@@ -87,23 +89,17 @@ public class TooltipOverlayHandler
 
 		if (base.equals(actual) && base.hunger == 0) return;
 
-		/* -------------------------------------------------------------- */
-		/*  Branch depending on config                                   */
-		/* -------------------------------------------------------------- */
 		if (ModConfig.CLIENT.USE_MODERN_TOOLTIP)
 			renderModern(event, stack, base, actual);
 		else
 			renderLegacy(event, stack, base, actual);
 
-		// Clear ItemStack to avoid tooltip rendering issues
 		this.cachedStack = ItemStack.EMPTY;
 	}
 
-	/* ================================================================ */
-	/*  MODERN – draw inside tooltip (Forge already reserved space)    */
-	/* ================================================================ */
+	// MODERN – draw inside tooltip
 	private void renderModern(RenderTooltipEvent.PostText event, ItemStack stack,
-							  FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
+	                          FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		GuiScreen gui = mc.currentScreen;
@@ -129,10 +125,17 @@ public class TooltipOverlayHandler
 		}
 
 		int lineHeight = 10;
-		int y = event.getY() + (event.getLines().size() - 2) * lineHeight + 2;
+
+		int drinkLinesOffset = 0;
+		if (ThirstTooltipHandler.shouldShowDrinkTooltip(stack))
+		{
+			drinkLinesOffset = 2;
+		}
+
+		int y = event.getY() + (event.getLines().size() - 2 - drinkLinesOffset) * lineHeight + 2;
 		int x = event.getX();
 
-		/* Hunger ------------------------------------------------------- */
+		// Hunger
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 		boolean rotten = FoodHelper.isRotten(stack);
 		int iconOffset = rotten ? 36 : 0;
@@ -175,7 +178,7 @@ public class TooltipOverlayHandler
 			GlStateManager.popMatrix();
 		}
 
-		/* Saturation --------------------------------------------------- */
+		// Saturation
 		y += 10;
 		startX = x;
 
@@ -209,7 +212,6 @@ public class TooltipOverlayHandler
 			GlStateManager.popMatrix();
 		}
 
-		/* GL reset ----------------------------------------------------- */
 		GlStateManager.disableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderHelper.disableStandardItemLighting();
@@ -217,11 +219,9 @@ public class TooltipOverlayHandler
 		GlStateManager.disableDepth();
 	}
 
-	/* ================================================================ */
-	/*  LEGACY – draw on a separate floating background                */
-	/* ================================================================ */
+	// LEGACY – draw on a separate floating background (includes drink values if applicable)
 	private void renderLegacy(RenderTooltipEvent.PostText event, ItemStack stack,
-							  FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
+	                          FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		GuiScreen gui = mc.currentScreen;
@@ -231,6 +231,15 @@ public class TooltipOverlayHandler
 		int toolTipX = event.getX();
 		int toolTipW = event.getWidth();
 		int toolTipH = event.getHeight();
+
+		boolean hasDrinkValues = ThirstTooltipHandler.shouldShowDrinkTooltip(stack);
+		SimpleDifficultyHelper.DrinkValues drinkValues = null;
+		if (hasDrinkValues)
+		{
+			drinkValues = SimpleDifficultyHelper.getDrinkValues(stack);
+			if (drinkValues == null || drinkValues.thirst <= 0)
+				hasDrinkValues = false;
+		}
 
 		int biggestHunger   = Math.max(base.hunger, actual.hunger);
 		float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
@@ -245,23 +254,56 @@ public class TooltipOverlayHandler
 		String satText = satOverflow ? ((biggestSatInc < 0 ? -1 : 1) * satBars) + "x" : null;
 		if (satOverflow) satBars = 1;
 
-		int toolTipBottomY = toolTipY + toolTipH + 1 + LEGACY_BOTTOM_OFFSET;
-		boolean drawBelow  = toolTipBottomY + 20 < scale.getScaledHeight() - 3;
+		int thirstBars = 0;
+		int hydrationBars = 0;
+		String thirstText = null;
+		String hydrationText = null;
+		if (hasDrinkValues)
+		{
+			thirstBars = (drinkValues.thirst + 1) / 2;
+			if (thirstBars > 10)
+			{
+				thirstText = thirstBars + "x";
+				thirstBars = 1;
+			}
 
-		int topY    = drawBelow ? toolTipBottomY : toolTipY - 20 + LEGACY_TOP_OFFSET;
-		int bottomY = topY + 19;
+			hydrationBars = drinkValues.saturation > 0 ? (int) Math.ceil(drinkValues.saturation / 2f) : 1;
+			if (hydrationBars > 10)
+			{
+				hydrationText = hydrationBars + "x";
+				hydrationBars = 1;
+			}
+		}
 
 		int hungerIconsWidth  = hungerBars * 9;
 		int satIconsWidth     = satBars * 6;
+		int thirstIconsWidth  = thirstBars * 8;
+		int hydrationIconsWidth = hydrationBars * 6;
 
-		int hungerTextWidth  = hungerText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f);
-		int satTextWidth     = satText    == null ? 0 : (int) (mc.fontRenderer.getStringWidth(satText)    * 0.75f);
+		int hungerTextWidth    = hungerText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(hungerText) * 0.75f);
+		int satTextWidth       = satText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(satText) * 0.75f);
+		int thirstTextWidth    = thirstText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(thirstText) * 0.75f);
+		int hydrationTextWidth = hydrationText == null ? 0 : (int) (mc.fontRenderer.getStringWidth(hydrationText) * 0.75f);
 
-		int hungerLineWidth = hungerIconsWidth  + (hungerTextWidth  > 0 ? hungerTextWidth  + 2 : 0);
-		int satLineWidth    = satIconsWidth     + (satTextWidth     > 0 ? satTextWidth     + 2 : 0);
+		int hungerLineWidth    = hungerIconsWidth + (hungerTextWidth > 0 ? hungerTextWidth + 2 : 0);
+		int satLineWidth       = satIconsWidth + (satTextWidth > 0 ? satTextWidth + 2 : 0);
+		int thirstLineWidth    = thirstIconsWidth + (thirstTextWidth > 0 ? thirstTextWidth + 2 : 0);
+		int hydrationLineWidth = hydrationIconsWidth + (hydrationTextWidth > 0 ? hydrationTextWidth + 2 : 0);
 
 		int contentWidth = Math.max(hungerLineWidth, satLineWidth);
+		if (hasDrinkValues)
+		{
+			contentWidth = Math.max(contentWidth, Math.max(thirstLineWidth, hydrationLineWidth));
+		}
 		int overlayWidth = contentWidth + 6;
+
+		int blockHeight = hasDrinkValues ? 39 : 19;
+
+		int toolTipBottomY = toolTipY + toolTipH + 1 + LEGACY_BOTTOM_OFFSET;
+		boolean drawBelow  = toolTipBottomY + blockHeight < scale.getScaledHeight() - 3;
+
+		int topY    = drawBelow ? toolTipBottomY : toolTipY - blockHeight + LEGACY_TOP_OFFSET;
+		int bottomY = topY + blockHeight;
 
 		int minLeftX = toolTipX;
 		int maxRightX = toolTipX + toolTipW;
@@ -277,7 +319,7 @@ public class TooltipOverlayHandler
 			needsTopBorder = true;
 		}
 
-		/* Draw background -------------------------------------------- */
+		// Draw background
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		Gui.drawRect(leftX - 1, topY, rightX + 1, bottomY, 0xF0100010);
@@ -293,17 +335,15 @@ public class TooltipOverlayHandler
 		GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
 		int rightPadding = 3;
-		int y = bottomY - 18;
+		int y = topY + 1;
 
-		/* Hunger icons ----------------------------------------------- */
+		// === HUNGER ICONS ===
 		mc.getTextureManager().bindTexture(Gui.ICONS);
 		boolean isRotten = FoodHelper.isRotten(stack);
 		int iconOffset = isRotten ? 36 : 0;
 		int background = isRotten ? 13 : 0;
 
-		int hungerTextX = rightX - rightPadding - hungerIconsWidth - (hungerTextWidth > 0 ? 2 : 0) - hungerTextWidth;
 		int hungerStartX = rightX - rightPadding - hungerIconsWidth;
-
 		int hungerX = hungerStartX;
 
 		for (int i = hungerBars * 2 - 2; i >= 0; i -= 2)
@@ -332,19 +372,18 @@ public class TooltipOverlayHandler
 
 		if (hungerText != null)
 		{
+			int hungerTextX = hungerStartX - hungerTextWidth - 2;
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			mc.fontRenderer.drawStringWithShadow(hungerText,
-					hungerTextX * 4 / 3, y * 4 / 3 + 2, 0xFFDDDDDD);
+					hungerTextX * 4f / 3f, y * 4f / 3f + 2, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
-		/* Saturation icons ------------------------------------------- */
+		// === FOOD SATURATION ICONS ===
 		y += 10;
 
-		int satTextX = rightX - rightPadding - satIconsWidth - (satTextWidth > 0 ? 2 : 0) - satTextWidth;
 		int satStartX = rightX - rightPadding - satIconsWidth;
-
 		int satX = satStartX;
 
 		float satInc = actual.getSaturationIncrement();
@@ -369,19 +408,91 @@ public class TooltipOverlayHandler
 
 		if (satText != null)
 		{
+			int satTextX = satStartX - satTextWidth - 2;
 			GlStateManager.pushMatrix();
 			GlStateManager.scale(0.75F, 0.75F, 0.75F);
 			mc.fontRenderer.drawStringWithShadow(satText,
-					satTextX * 4 / 3, y * 4 / 3 + 1, 0xFFDDDDDD);
+					satTextX * 4f / 3f, y * 4f / 3f + 1, 0xFFDDDDDD);
 			GlStateManager.popMatrix();
 		}
 
-		/* GL reset ---------------------------------------------------- */
+		// === THIRST ICONS (if applicable) ===
+		if (hasDrinkValues)
+		{
+			y += 10;
+
+			mc.getTextureManager().bindTexture(getThirstTexture());
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+
+			int thirstV = drinkValues.isDirty() ? 9 : 0;
+			int thirstStartX = rightX - rightPadding - thirstIconsWidth;
+			int thirstX = thirstStartX;
+
+			for (int i = thirstBars - 1; i >= 0; i--)
+			{
+				int iconThirst = (i + 1) * 2;
+				if (drinkValues.thirst >= iconThirst)
+				{
+					gui.drawTexturedModalRect(thirstX, y, 37, thirstV, 8, 9);
+				}
+				else if (drinkValues.thirst == iconThirst - 1)
+				{
+					gui.drawTexturedModalRect(thirstX, y, 46, thirstV, 8, 9);
+				}
+				thirstX += 8;
+			}
+
+			if (thirstText != null)
+			{
+				int thirstTextX = thirstStartX - thirstTextWidth - 2;
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+				mc.fontRenderer.drawStringWithShadow(thirstText,
+						thirstTextX * 4f / 3f, y * 4f / 3f + 2, 0xFFDDDDDD);
+				GlStateManager.popMatrix();
+			}
+
+			// === HYDRATION ICONS ===
+			y += 10;
+
+			int hydrationStartX = rightX - rightPadding - hydrationIconsWidth;
+			int hydrationX = hydrationStartX;
+
+			for (int i = hydrationBars - 1; i >= 0; i--)
+			{
+				float iconSatStart = i * 2f;
+				float fillAmount = Math.max(0, Math.min(2f, drinkValues.saturation - iconSatStart));
+
+				int u = getHydrationU(fillAmount);
+				gui.drawTexturedModalRect(hydrationX, y, u, 27, 7, 7);
+				hydrationX += 6;
+			}
+
+			if (hydrationText != null)
+			{
+				int hydrationTextX = hydrationStartX - hydrationTextWidth - 2;
+				GlStateManager.pushMatrix();
+				GlStateManager.scale(0.75F, 0.75F, 0.75F);
+				mc.fontRenderer.drawStringWithShadow(hydrationText,
+						hydrationTextX * 4f / 3f, y * 4f / 3f + 1, 0xFFDDDDDD);
+				GlStateManager.popMatrix();
+			}
+		}
+
 		GlStateManager.disableBlend();
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
+	}
+
+	private int getHydrationU(float fillAmount)
+	{
+		if (fillAmount <= 0) return 28;
+		if (fillAmount <= 0.5f) return 0;
+		if (fillAmount <= 1.0f) return 7;
+		if (fillAmount <= 1.5f) return 14;
+		return 21;
 	}
 }

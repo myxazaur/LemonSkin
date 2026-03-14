@@ -11,7 +11,8 @@ import java.util.Map;
 
 @IFMLLoadingPlugin.Name("LemonSkinPlugin")
 @IFMLLoadingPlugin.MCVersion(ForgeVersion.mcVersion)
-public class LemonSkinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader {
+public class LemonSkinPlugin implements IFMLLoadingPlugin, IEarlyMixinLoader
+{
     @Override
     public String[] getASMTransformerClass() {
         return new String[0];

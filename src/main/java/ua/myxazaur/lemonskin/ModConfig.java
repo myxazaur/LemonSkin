@@ -17,6 +17,9 @@ public class ModConfig {
 
 	public static class ClientCategory {
 
+		@Config.Ignore
+		private transient RGB cachedColor = null;
+
 		@Config.Name("Mods")
 		@Config.LangKey("lemonskin.mods")
 		@Config.Comment("Compatibility and integration settings with other mods")
@@ -27,6 +30,48 @@ public class ModConfig {
 			@Config.LangKey("lemonskin.mantle")
 			@Config.Comment("If true, makes the health overlay compatible with Mantle")
 			public boolean MANTLE = true;
+
+			@Config.Name("Simple Difficulty")
+			@Config.LangKey("lemonskin.simpledifficulty")
+			@Config.Comment("Integration settings for Simple Difficulty mod")
+			public SimpleDifficultyConfig SIMPLE_DIFFICULTY = new SimpleDifficultyConfig();
+
+			public static class SimpleDifficultyConfig {
+				@Config.Name("Show Thirst Exhaustion Underlay")
+				@Config.LangKey("show.thirst.exhaustion.underlay")
+				@Config.Comment("If true, shows thirst exhaustion as a progress bar behind the thirst bar")
+				public boolean SHOW_THIRST_EXHAUSTION_UNDERLAY = true;
+
+				@Config.Name("Show Thirst Values HUD Overlay")
+				@Config.LangKey("show.thirst.values.hud.overlay")
+				@Config.Comment("If true, shows the thirst that would be restored by drink you are currently holding")
+				public boolean SHOW_THIRST_VALUES_OVERLAY = true;
+
+				@Config.Name("Show Thirst Saturation HUD Overlay")
+				@Config.LangKey("show.thirst.saturation.hud.overlay")
+				@Config.Comment("If true, shows the hydration that would be restored by drink you are currently holding")
+				public boolean SHOW_THIRST_SATURATION_OVERLAY = true;
+
+				@Config.Name("Show Drink Values in Tooltip")
+				@Config.LangKey("show.drink.values.in.tooltip")
+				@Config.Comment("If true, shows the thirst and hydration values of drinks in tooltip while holding SHIFT")
+				public boolean SHOW_DRINK_VALUES_IN_TOOLTIP = false;
+
+				@Config.Name("Show Drink Values in Tooltip Always")
+				@Config.LangKey("show.drink.values.in.tooltip.always")
+				@Config.Comment("If true, shows the thirst and hydration values of drinks in tooltip automatically")
+				public boolean ALWAYS_SHOW_DRINK_VALUES_TOOLTIP = true;
+
+				@Config.Name("Show Thirst Stats in F3")
+				@Config.LangKey("show.thirst.stats.in.debug.overlay")
+				@Config.Comment("If true, adds a line that shows your thirst, hydration, and exhaustion in the F3 debug overlay")
+				public boolean SHOW_THIRST_DEBUG_INFO = true;
+
+				@Config.Name("Thirst Debug Info Format")
+				@Config.LangKey("thirst.debug.info.format")
+				@Config.Comment("Custom format for the thirst stats debug info (F3).\nPlaceholders: %t (thirst), %s (saturation/hydration), %e (exhaustion), %eM (max exhaustion)")
+				public String THIRST_DEBUG_INFO_FORMAT = "thirst: %t, hydration: %s, exh: %e/%eM";
+			}
 		}
 
 		@Config.Name("Use Modern Tooltip Rendering")
@@ -62,7 +107,7 @@ public class ModConfig {
 		@Config.Name("Show Food Health HUD Overlay")
 		@Config.LangKey("show.food.health.hud.overlay")
 		@Config.Comment("SHOW_FOOD_HEALTH_HUD_OVERLAY")
-		public boolean SHOW_FOOD_HEALTH_HUD_OVERLAY = false; // Still beta
+		public boolean SHOW_FOOD_HEALTH_HUD_OVERLAY = false;
 
 		@Config.Name("Show Vanilla Animations Overlay")
 		@Config.LangKey("show.vanilla.animations.overlay")
@@ -84,37 +129,38 @@ public class ModConfig {
 		@Config.Comment("Enable to use the custom saturation color instead of default")
 		public boolean USE_CUSTOM_COLOR = false;
 
-        @Config.Name("Recipe Book Tooltip fix")
+		@Config.Name("Recipe Book Tooltip fix")
 		@Config.LangKey("recipe.book.tooltip.fix")
-        @Config.Comment("Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode")
-        public boolean RECIPE_BOOK_TOOLTIP_FIX = true;
+		@Config.Comment("Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode")
+		public boolean RECIPE_BOOK_TOOLTIP_FIX = true;
 
-        @Config.Name("Update Overlays When Game Is Paused")
-        @Config.LangKey("update.overlay.pause")
-        @Config.Comment("If true, HUD overlays animations will be updated when the game is paused")
-        public boolean UPDATE_OVERLAY_ON_PAUSE = false;
+		@Config.Name("Update Overlays When Game Is Paused")
+		@Config.LangKey("update.overlay.pause")
+		@Config.Comment("If true, HUD overlays animations will be updated when the game is paused")
+		public boolean UPDATE_OVERLAY_ON_PAUSE = false;
 
-        @Config.Name("Max Hud Overlay Flash Alpha")
-        @Config.LangKey("max.flash.alpha")
-        @Config.Comment("Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)")
-        @Config.RangeDouble(min = 0.0, max = 1.0)
-        public float MAX_HUD_OVERLAY_FLASH_ALPHA = 0.65f;
+		@Config.Name("Max Hud Overlay Flash Alpha")
+		@Config.LangKey("max.flash.alpha")
+		@Config.Comment("Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)")
+		@Config.RangeDouble(min = 0.0, max = 1.0)
+		public float MAX_HUD_OVERLAY_FLASH_ALPHA = 0.65f;
 
-        @Config.Name("Debug Info Format")
-        @Config.LangKey("debug.info.format")
-        @Config.Comment("Custom format for the food stats debug info (F3).\nPlaceholders: %h (hunger)\n%s (saturation)\\n%e (exhaustion)\n%eM (max exhaustion)")
-        public String DEBUG_INFO_FORMAT = "hunger: %h, sat: %s, exh: %e/%eM";
+		@Config.Name("Debug Info Format")
+		@Config.LangKey("debug.info.format")
+		@Config.Comment("Custom format for the food stats debug info (F3).\nPlaceholders: %h (hunger)\n%s (saturation)\\n%e (exhaustion)\n%eM (max exhaustion)")
+		public String DEBUG_INFO_FORMAT = "hunger: %h, sat: %s, exh: %e/%eM";
 
 		public RGB getColor()
 		{
-			return USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);
+			if (cachedColor == null) {
+				cachedColor = USE_CUSTOM_COLOR ? fromHex(CUSTOM_COLOR) : new RGB(1f, 1f, 1f);
+			}
+			return cachedColor;
 		}
 
 		public ResourceLocation getIcons()
 		{
-			//return new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
-			return USE_CUSTOM_COLOR ? LemonSkin.grayIcons
-					:  new ResourceLocation(Tags.MOD_ID, "textures/icons.png");
+			return USE_CUSTOM_COLOR ? LemonSkin.grayIcons : LemonSkin.ICONS;
 		}
 	}
 
@@ -124,39 +170,24 @@ public class ModConfig {
 
 		public RGB(float red, float green, float blue)
 		{
-			this.red   = red;
+			this.red = red;
 			this.green = green;
-			this.blue  = blue;
+			this.blue = blue;
 		}
 
-		public float getRed() {
-			return red;
-		}
-
-		public float getGreen() {
-			return green;
-		}
-
-		public float getBlue() {
-			return blue;
-		}
+		public float getRed() { return red; }
+		public float getGreen() { return green; }
+		public float getBlue() { return blue; }
 	}
 
 	public static RGB fromHex(String hex)
 	{
-		if (hex == null) {
-			return new RGB(1f, 1f, 1f);
-		}
+		if (hex == null) return new RGB(1f, 1f, 1f);
 
 		try {
 			String cleanHex = hex.trim();
-			if (cleanHex.startsWith("#")) {
-				cleanHex = cleanHex.substring(1);
-			}
-
-			if (cleanHex.length() != 6) {
-				return new RGB(1f, 1f, 1f);
-			}
+			if (cleanHex.startsWith("#")) cleanHex = cleanHex.substring(1);
+			if (cleanHex.length() != 6) return new RGB(1f, 1f, 1f);
 
 			int r = Integer.parseInt(cleanHex.substring(0, 2), 16);
 			int g = Integer.parseInt(cleanHex.substring(2, 4), 16);
@@ -174,6 +205,7 @@ public class ModConfig {
 		public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 			if (event.getModID().equals(Tags.MOD_ID)) {
 				ConfigManager.sync(Tags.MOD_ID, Config.Type.INSTANCE);
+				ModConfig.CLIENT.cachedColor = null;
 			}
 		}
 	}

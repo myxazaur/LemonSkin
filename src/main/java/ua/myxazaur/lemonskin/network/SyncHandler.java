@@ -8,8 +8,10 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
+import ua.myxazaur.lemonskin.helpers.ThirstHelper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,16 +25,14 @@ public class SyncHandler
 	{
 		CHANNEL.registerMessage(MessageExhaustionSync.class, MessageExhaustionSync.class, 1, Side.CLIENT);
 		CHANNEL.registerMessage(MessageSaturationSync.class, MessageSaturationSync.class, 2, Side.CLIENT);
+		CHANNEL.registerMessage(MessageThirstExhaustionSync.class, MessageThirstExhaustionSync.class, 3, Side.CLIENT);
 
 		MinecraftForge.EVENT_BUS.register(new SyncHandler());
 	}
 
-	/*
-	 * Sync saturation (vanilla MC only syncs when it hits 0)
-	 * Sync exhaustion (vanilla MC does not sync it at all)
-	 */
-	private static final Map<UUID, Float> lastSaturationLevels = new HashMap<UUID, Float>();
-	private static final Map<UUID, Float> lastExhaustionLevels = new HashMap<UUID, Float>();
+	private static final Map<UUID, Float> lastSaturationLevels = new HashMap<>();
+	private static final Map<UUID, Float> lastExhaustionLevels = new HashMap<>();
+	private static final Map<UUID, Float> lastThirstExhaustionLevels = new HashMap<>();
 
 	@SubscribeEvent
 	public void onLivingUpdateEvent(LivingUpdateEvent event)
@@ -41,20 +41,35 @@ public class SyncHandler
 			return;
 
 		EntityPlayerMP player = (EntityPlayerMP) event.getEntity();
-		Float lastSaturationLevel = lastSaturationLevels.get(player.getUniqueID());
-		Float lastExhaustionLevel = lastExhaustionLevels.get(player.getUniqueID());
+		UUID playerId = player.getUniqueID();
 
+		// Food saturation sync
+		Float lastSaturationLevel = lastSaturationLevels.get(playerId);
 		if (lastSaturationLevel == null || lastSaturationLevel != player.getFoodStats().getSaturationLevel())
 		{
 			CHANNEL.sendTo(new MessageSaturationSync(player.getFoodStats().getSaturationLevel()), player);
-			lastSaturationLevels.put(player.getUniqueID(), player.getFoodStats().getSaturationLevel());
+			lastSaturationLevels.put(playerId, player.getFoodStats().getSaturationLevel());
 		}
 
+		// Food exhaustion sync
 		float exhaustionLevel = HungerHelper.getExhaustion(player);
+		Float lastExhaustionLevel = lastExhaustionLevels.get(playerId);
 		if (lastExhaustionLevel == null || Math.abs(lastExhaustionLevel - exhaustionLevel) >= 0.01f)
 		{
 			CHANNEL.sendTo(new MessageExhaustionSync(exhaustionLevel), player);
-			lastExhaustionLevels.put(player.getUniqueID(), exhaustionLevel);
+			lastExhaustionLevels.put(playerId, exhaustionLevel);
+		}
+
+		// Thirst exhaustion sync (SimpleDifficulty)
+		if (LemonSkin.hasSimpleDifficulty)
+		{
+			float thirstExhaustion = ThirstHelper.getExhaustion(player);
+			Float lastThirstExhaustion = lastThirstExhaustionLevels.get(playerId);
+			if (lastThirstExhaustion == null || Math.abs(lastThirstExhaustion - thirstExhaustion) >= 0.01f)
+			{
+				CHANNEL.sendTo(new MessageThirstExhaustionSync(thirstExhaustion), player);
+				lastThirstExhaustionLevels.put(playerId, thirstExhaustion);
+			}
 		}
 	}
 
@@ -64,7 +79,21 @@ public class SyncHandler
 		if (!(event.player instanceof EntityPlayerMP))
 			return;
 
-		lastSaturationLevels.remove(event.player.getUniqueID());
-		lastExhaustionLevels.remove(event.player.getUniqueID());
+		UUID playerId = event.player.getUniqueID();
+		lastSaturationLevels.remove(playerId);
+		lastExhaustionLevels.remove(playerId);
+		lastThirstExhaustionLevels.remove(playerId);
+	}
+
+	@SubscribeEvent
+	public void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event)
+	{
+		if (!(event.player instanceof EntityPlayerMP))
+			return;
+
+		UUID playerId = event.player.getUniqueID();
+		lastSaturationLevels.remove(playerId);
+		lastExhaustionLevels.remove(playerId);
+		lastThirstExhaustionLevels.remove(playerId);
 	}
 }

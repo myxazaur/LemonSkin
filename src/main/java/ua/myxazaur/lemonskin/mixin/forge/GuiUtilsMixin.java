@@ -1,26 +1,24 @@
 package ua.myxazaur.lemonskin.mixin.forge;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.client.config.GuiUtils;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.helpers.*;
+import ua.myxazaur.lemonskin.client.compat.ThirstTooltipHandler;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * This mixin is intended to reserve space in the tooltip for Modern Tooltip mode
  * All other logic is implemented in {@link ua.myxazaur.lemonskin.client.TooltipOverlayHandler}
+ * and {@link ua.myxazaur.lemonskin.client.compat.ThirstTooltipHandler}
  */
 @Mixin(value = GuiUtils.class, remap = false)
 public abstract class GuiUtilsMixin
@@ -30,37 +28,26 @@ public abstract class GuiUtilsMixin
             name = "tooltipTextWidth")
     private static int modifyTooltipTextWidth(int tooltipTextWidth, @Nonnull ItemStack stack, List<String> textLines)
     {
-        if (!TooltipHelper.shouldShowModernTooltip(stack)) return tooltipTextWidth;
-
-        int spacesNeeded = lemonSkin$getSpacesNeeded(stack) * 4;
-        return Math.max(tooltipTextWidth, spacesNeeded);
-    }
-
-    @Inject(method = "drawHoveringText(Lnet/minecraft/item/ItemStack;Ljava/util/List;IIIIILnet/minecraft/client/gui/FontRenderer;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraftforge/client/event/RenderTooltipEvent$Pre;getX()I"))
-    private static void reserveSpace(ItemStack stack, List<String> textLines, int mouseX, int mouseY, int screenWidth, int screenHeight, int maxTextWidth, FontRenderer font, CallbackInfo ci)
-    {
-        try {
-            if (!TooltipHelper.shouldShowModernTooltip(stack)) return;
-            if (textLines != null && !textLines.isEmpty()) {
-                List<String> mutable = new ArrayList<>(textLines);
-                mutable.removeIf(line -> line != null && line.contains("\u00A0"));
-
-                if (textLines.getClass().getName().contains("java.util.Collections")) textLines = mutable;
-                else {
-                    textLines.clear();
-                    textLines.addAll(mutable);
-                }
-
-                TooltipHelper.reserveFoodTooltipSpace(textLines, stack);
-            }
-        } catch (Exception e) {
-            LemonSkin.Log.error("Failed to process tooltip", e);
+        // Check for food tooltip width
+        if (TooltipHelper.shouldShowModernTooltip(stack))
+        {
+            int spacesNeeded = lemonSkin$getFoodSpacesNeeded(stack) * 4;
+            tooltipTextWidth = Math.max(tooltipTextWidth, spacesNeeded);
         }
+
+        // Check for drink tooltip width (SimpleDifficulty)
+        if (ThirstTooltipHandler.shouldShowDrinkTooltip(stack))
+        {
+            int spacesNeeded = lemonSkin$getDrinkSpacesNeeded(stack) * 4;
+            tooltipTextWidth = Math.max(tooltipTextWidth, spacesNeeded);
+        }
+
+        return tooltipTextWidth;
     }
 
     @Unique
-    private static int lemonSkin$getSpacesNeeded(ItemStack stack) {
+    private static int lemonSkin$getFoodSpacesNeeded(ItemStack stack)
+    {
         if (!FoodHelper.isFood(stack)) return 0;
 
         EntityPlayer player = Minecraft.getMinecraft().player;
@@ -74,21 +61,42 @@ public abstract class GuiUtilsMixin
         base   = BetterWithModsHelper.getFoodValuesForDisplay(base);
         actual = BetterWithModsHelper.getFoodValuesForDisplay(actual);
 
-        return lemonSkin$getSpacesNeeded(base, actual);
+        return lemonSkin$calculateSpacesNeeded(base.hunger, actual.hunger,
+                base.getSaturationIncrement(), actual.getSaturationIncrement());
     }
 
     @Unique
-    private static int lemonSkin$getSpacesNeeded(FoodHelper.BasicFoodValues base, FoodHelper.BasicFoodValues actual) {
-        int   biggestHunger = Math.max(base.hunger, actual.hunger);
-        float biggestSatInc = Math.max(base.getSaturationIncrement(), actual.getSaturationIncrement());
+    private static int lemonSkin$getDrinkSpacesNeeded(ItemStack stack)
+    {
+        if (!LemonSkin.hasSimpleDifficulty) return 0;
+        if (!ThirstHelper.isDrink(stack)) return 0;
 
-        int hungerBars = (int) Math.ceil(Math.abs(biggestHunger) / 2f);
-        int satBars    = (int) Math.max(1, Math.ceil(Math.abs(biggestSatInc) / 2f));
+        SimpleDifficultyHelper.DrinkValues values = SimpleDifficultyHelper.getDrinkValues(stack);
+        if (values == null) return 0;
 
-        float scale     = 2.2f;
-        float hungerLen = hungerBars < 10 ? hungerBars * scale : 2;
-        float satLen    = satBars < 10 ? satBars * scale * 0.8f : 2;
+        int thirstBars = (int) Math.ceil(Math.abs(values.thirst) / 2f);
+        int satBars = values.saturation > 0 ? (int) Math.ceil(values.saturation / 2f) : 0;
 
-        return (int) Math.ceil(Math.max(hungerLen, satLen));
+        float scale = 2.2f;
+        float thirstLen = thirstBars <= 10 ? thirstBars * scale : 2;
+        float satLen = satBars <= 10 ? satBars * scale * 0.8f : 2;
+
+        return (int) Math.ceil(Math.max(thirstLen, satLen));
+    }
+
+    @Unique
+    private static int lemonSkin$calculateSpacesNeeded(int baseVal, int actualVal, float baseSat, float actualSat)
+    {
+        int biggestVal = Math.max(baseVal, actualVal);
+        float biggestSat = Math.max(baseSat, actualSat);
+
+        int valBars = (int) Math.ceil(Math.abs(biggestVal) / 2f);
+        int satBars = biggestSat > 0 ? (int) Math.ceil(Math.abs(biggestSat) / 2f) : 0;
+
+        float scale = 2.2f;
+        float valLen = valBars <= 10 ? valBars * scale : 2;
+        float satLen = satBars <= 10 ? satBars * scale * 0.8f : 2;
+
+        return (int) Math.ceil(Math.max(valLen, satLen));
     }
 }

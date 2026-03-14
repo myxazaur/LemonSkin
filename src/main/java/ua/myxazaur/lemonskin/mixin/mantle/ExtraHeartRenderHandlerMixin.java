@@ -4,8 +4,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraftforge.client.GuiIngameForge;
@@ -18,6 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import slimeknights.mantle.client.ExtraHeartRenderHandler;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
+import ua.myxazaur.lemonskin.client.AnimationHandler;
 import ua.myxazaur.lemonskin.client.HUDOverlayRenderer;
 import ua.myxazaur.lemonskin.client.compat.MantleHealthOverlayRenderer;
 import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
@@ -65,14 +64,7 @@ public abstract class ExtraHeartRenderHandlerMixin
         if (LemonSkin.hasAppleCore)
             values = AppleCoreHelper.getFoodValuesForDisplay(values, player);
 
-        PotionEffect effect = FoodHelper.getEffect(held);
-
-        if (held.getItem() == Items.GOLDEN_APPLE) {
-            if (held.getMetadata() > 0)
-                effect = new PotionEffect(MobEffects.REGENERATION, 400, 1);
-            else
-                effect = new PotionEffect(MobEffects.REGENERATION, 100, 1);
-        }
+        PotionEffect effect = FoodHelper.getHealingEffect(held);
 
         float heal = HealthHelper.getEstimatedHealthIncrement(player, values, effect);
         if (heal <= 0) return;
@@ -89,7 +81,7 @@ public abstract class ExtraHeartRenderHandlerMixin
 
         MantleHealthOverlayRenderer.drawHealthOverlay(
                 currentHealth, newHealth, mc, left, top,
-                LemonSkin.tickHandler.flashAlpha, updateCounter
+                AnimationHandler.getFlashAlpha(), updateCounter
         );
     }
 }

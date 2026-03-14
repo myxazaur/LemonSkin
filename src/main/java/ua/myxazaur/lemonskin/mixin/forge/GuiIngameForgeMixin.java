@@ -2,8 +2,6 @@ package ua.myxazaur.lemonskin.mixin.forge;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.FoodStats;
@@ -16,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
+import ua.myxazaur.lemonskin.client.AnimationHandler;
 import ua.myxazaur.lemonskin.client.HUDOverlayRenderer;
 import ua.myxazaur.lemonskin.helpers.AppleCoreHelper;
 import ua.myxazaur.lemonskin.helpers.FoodHelper;
@@ -25,7 +24,6 @@ import ua.myxazaur.lemonskin.mixin.vanilla.GuiIngameAccessor;
 
 import static net.minecraftforge.client.GuiIngameForge.left_height;
 import static net.minecraftforge.client.GuiIngameForge.right_height;
-import static ua.myxazaur.lemonskin.LemonSkin.tickHandler;
 
 @Mixin(value = GuiIngameForge.class, remap = false)
 public abstract class GuiIngameForgeMixin
@@ -93,7 +91,7 @@ public abstract class GuiIngameForgeMixin
 
         // Restored hunger overlay
         HUDOverlayRenderer.drawHungerOverlay(values.hunger, stats.getFoodLevel(),
-                mc, left, top, tickHandler.flashAlpha, FoodHelper.isRotten(held), updateCounter);
+                mc, left, top, AnimationHandler.getFlashAlpha(), FoodHelper.isRotten(held), updateCounter);
 
         // Restored saturation overlay
         if (ModConfig.CLIENT.SHOW_SATURATION_OVERLAY)
@@ -102,7 +100,7 @@ public abstract class GuiIngameForgeMixin
             float newSaturationValue = stats.getSaturationLevel() + values.getSaturationIncrement();
             HUDOverlayRenderer.drawSaturationOverlay(
                     newSaturationValue > newFoodValue ? newFoodValue - stats.getSaturationLevel() : values.getSaturationIncrement(),
-                    stats.getSaturationLevel(), mc, left, top, tickHandler.flashAlpha, updateCounter);
+                    stats.getSaturationLevel(), mc, left, top, AnimationHandler.getFlashAlpha(), updateCounter);
         }
     }
 
@@ -130,15 +128,7 @@ public abstract class GuiIngameForgeMixin
         FoodHelper.BasicFoodValues  values = FoodHelper.getModifiedFoodValues(held, player);
         if (LemonSkin.hasAppleCore) values = AppleCoreHelper.getFoodValuesForDisplay(values, player);
 
-        PotionEffect effect = FoodHelper.getEffect(held);
-
-        // Hardcode for golden apple
-        if (held.getItem() == Items.GOLDEN_APPLE)
-        {
-            if (held.getMetadata() > 0)
-                 effect = new PotionEffect(MobEffects.REGENERATION, 400, 1);
-            else effect = new PotionEffect(MobEffects.REGENERATION, 100, 1);
-        }
+        PotionEffect effect = FoodHelper.getHealingEffect(held);
 
         float heal = HealthHelper.getEstimatedHealthIncrement(player, values, effect);
 
@@ -150,6 +140,6 @@ public abstract class GuiIngameForgeMixin
         int left = width / 2 - 91;
         int top  = height - ls$healthLeftHeight;
 
-        HUDOverlayRenderer.drawHealthOverlay(currentHealth, newHealth, mc, left, top, tickHandler.flashAlpha, updateCounter);
+        HUDOverlayRenderer.drawHealthOverlay(currentHealth, newHealth, mc, left, top, AnimationHandler.getFlashAlpha(), updateCounter);
     }
 }

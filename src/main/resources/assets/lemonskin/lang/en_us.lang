@@ -1,7 +1,6 @@
 # Config GUI
 lemonskin.client=Client
 lemonskin.mods=Mods
-lemonskin.mantle=Mantle
 
 use.modern.tooltip=Use Modern Tooltip Rendering
 show.food.values.in.tooltip=Show Food Values in Tooltip
@@ -22,7 +21,6 @@ recipe.book.tooltip.fix=Recipe Book Tooltip Fix
 # Tooltips
 lemonskin.client.tooltip=These config settings are client-side only
 lemonskin.mods.tooltip=Compatibility and integration settings with other mods
-lemonskin.mantle.tooltip=If true, makes the health overlay compatible with Mantle
 
 use.modern.tooltip.tooltip=true  – draw bars directly inside the tooltip\nfalse – draw on a separate floating background (legacy)
 show.food.values.in.tooltip.tooltip=If true, shows the hunger and saturation values of food in its tooltip while holding SHIFT
@@ -37,5 +35,31 @@ custom.saturation.color.tooltip=Set a custom color for the saturation HUD/Toolti
 use.custom.saturation.color.tooltip=Enable to use the custom saturation color instead of default
 update.overlay.pause.tooltip=If true, HUD overlay animations will be updated when the game is paused
 max.flash.alpha.tooltip=Alpha value of the flashing icons at their most visible point (1.0 = fully opaque, 0.0 = fully transparent)
-debug.info.format.tooltip=Custom format for the food stats debug info (F3).\nPlaceholders: %h (hunger)\n%s (saturation)\n%e (exhaustion)\n%eM (max exhaustion)
+debug.info.format.tooltip=Custom format for the food stats debug info (F3).\nPlaceholders:\n%%h (hunger)\n%%s (saturation)\n%%e (exhaustion)\n%%eM (max exhaustion)
 recipe.book.tooltip.fix.tooltip=Apply a small fix in the recipe book, necessary for the correct display of tooltips for modern tooltip mode
+
+# ============= MODS =============
+
+# Mantle
+lemonskin.mantle=Mantle
+lemonskin.mantle.tooltip=If true, makes the health overlay compatible with Mantle
+
+# Simple Difficulty
+lemonskin.simpledifficulty=Simple Difficulty
+show.thirst.exhaustion.underlay=Show Thirst Exhaustion Underlay
+show.thirst.values.hud.overlay=Show Thirst Values HUD Overlay
+show.thirst.saturation.hud.overlay=Show Thirst Saturation HUD Overlay
+show.drink.values.in.tooltip=Show Drink Values in Tooltip
+show.drink.values.in.tooltip.always=Show Drink Values in Tooltip Always
+show.thirst.stats.in.debug.overlay=Show Thirst Stats in F3
+thirst.debug.info.format=Thirst Debug Info Format
+
+# Simple Difficulty Tooltips
+lemonskin.simpledifficulty.tooltip=Integration settings for Simple Difficulty mod
+show.thirst.exhaustion.underlay.tooltip=If true, shows thirst exhaustion as a progress bar behind the thirst bar
+show.thirst.values.hud.overlay.tooltip=If true, shows the thirst that would be restored by drink you are currently holding
+show.thirst.saturation.hud.overlay.tooltip=If true, shows the hydration that would be restored by drink you are currently holding
+show.drink.values.in.tooltip.tooltip=If true, shows the thirst and hydration values of drinks in tooltip while holding SHIFT
+show.drink.values.in.tooltip.always.tooltip=If true, shows the thirst and hydration values of drinks in tooltip automatically
+show.thirst.stats.in.debug.overlay.tooltip=If true, adds a line that shows your thirst, hydration, and exhaustion in the F3 debug overlay
+thirst.debug.info.format.tooltip=Custom format for the thirst stats debug info (F3).\nPlaceholders:\n%%t (thirst)\n%%s (saturation/hydration)\n%%e (exhaustion)\n%%eM (max exhaustion)

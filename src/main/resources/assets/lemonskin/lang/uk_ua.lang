@@ -1,7 +1,6 @@
 # Config GUI
 lemonskin.client=Клієнт
 lemonskin.mods=Моди
-lemonskin.mantle=Mantle
 
 use.modern.tooltip=Сучасний рендеринг підказок
 show.food.values.in.tooltip=Показувати значення їжі у підказці
@@ -22,7 +21,6 @@ recipe.book.tooltip.fix=Виправлення підказок книги ре�
 # Tooltips
 lemonskin.client.tooltip=Ці налаштування доступні тільки на стороні клієнта
 lemonskin.mods.tooltip=Налаштування сумісності та інтеграції з іншими модами
-lemonskin.mantle.tooltip=Якщо увімкнено, робить оверлей здоров'я сумісним з Mantle
 
 use.modern.tooltip.tooltip=true  – малювати лінії безпосередньо у підказці\nfalse – малювати на окремому плаваючому фоні (legacy)
 show.food.values.in.tooltip.tooltip=Якщо увімкнено, показує значення голоду та насичення їжі у підказці при затиснутій клавіші SHIFT
@@ -37,5 +35,31 @@ custom.saturation.color.tooltip=Встановити власний колір �
 use.custom.saturation.color.tooltip=Увімкнути використання власного кольору насичення замість стандартного
 update.overlay.pause.tooltip=Якщо увімкнено, анімації HUD оновлюватимуться при призупиненні гри
 max.flash.alpha.tooltip=Прозорість мерехтливих іконок у момент їх максимальної видимості (1.0 = повністю непрозорі, 0.0 = повністю прозорі)
-debug.info.format.tooltip=Власний формат для статистики їжі у налагодженні (F3). Плейсхолдери: %h (голод), %s (насичення), %e (виснаження), %eM (макс. виснаження)
+debug.info.format.tooltip=Власний формат для статистики їжі у налагодженні (F3). Плейсхолдери:\n%%h (голод)\n%%s (насичення)\n%%e (виснаження)\n%%eM (макс. виснаження)
 recipe.book.tooltip.fix.tooltip=Застосувати невелике виправлення у книзі рецептів, необхідне для коректного відображення підказок у режимі сучасного рендерингу
+
+# ============= MODS =============
+
+# Mantle
+lemonskin.mantle=Mantle
+lemonskin.mantle.tooltip=Якщо увімкнено, робить оверлей здоров'я сумісним з Mantle
+
+# Simple Difficulty
+lemonskin.simpledifficulty=Simple Difficulty
+show.thirst.exhaustion.underlay=Показувати виснаження спраги у HUD
+show.thirst.values.hud.overlay=Показувати значення спраги у HUD
+show.thirst.saturation.hud.overlay=Показувати гідратацію у HUD
+show.drink.values.in.tooltip=Показувати значення напоїв у підказці
+show.drink.values.in.tooltip.always=Завжди показувати значення напоїв
+show.thirst.stats.in.debug.overlay=Показувати статистику спраги у F3
+thirst.debug.info.format=Формат налагоджувальної інформації спраги
+
+# Simple Difficulty Tooltips
+lemonskin.simpledifficulty.tooltip=Налаштування інтеграції з модом Simple Difficulty
+show.thirst.exhaustion.underlay.tooltip=Якщо увімкнено, показує виснаження спраги у вигляді смуги прогресу за смужками спраги
+show.thirst.values.hud.overlay.tooltip=Якщо увімкнено, показує спрагу, яка буде відновлена напоєм, який ви тримаєте
+show.thirst.saturation.hud.overlay.tooltip=Якщо увімкнено, показує гідратацію, яка буде відновлена напоєм, який ви тримаєте
+show.drink.values.in.tooltip.tooltip=Якщо увімкнено, показує значення спраги та гідратації напоїв у підказці при затиснутій клавіші SHIFT
+show.drink.values.in.tooltip.always.tooltip=Якщо увімкнено, автоматично показує значення спраги та гідратації напоїв у підказці
+show.thirst.stats.in.debug.overlay.tooltip=Якщо увімкнено, додає рядок із вашою спрагою, гідратацією та виснаженням у меню налагодження F3
+thirst.debug.info.format.tooltip=Власний формат для статистики спраги у налагодженні (F3). Плейсхолдери:\n%%t (спрага)\n%%s (гідратація)/n%%e (виснаження)\n%%eM (макс. виснаження)
