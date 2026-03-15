@@ -2,6 +2,7 @@ package ua.myxazaur.lemonskin.client;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.FoodStats;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -9,6 +10,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import ua.myxazaur.lemonskin.LemonSkin;
 import ua.myxazaur.lemonskin.ModConfig;
+import ua.myxazaur.lemonskin.Tags;
 import ua.myxazaur.lemonskin.helpers.HungerHelper;
 import ua.myxazaur.lemonskin.helpers.SimpleDifficultyHelper;
 import ua.myxazaur.lemonskin.helpers.ThirstHelper;
@@ -36,6 +38,16 @@ public class DebugInfoHandler
         Minecraft mc = Minecraft.getMinecraft();
         if (!mc.gameSettings.showDebugInfo)
             return;
+
+        // LemonSkin section
+        if (ModConfig.CLIENT.SHOW_FOOD_DEBUG_INFO ||
+                (LemonSkin.hasSimpleDifficulty &&
+                SimpleDifficultyHelper.isThirstEnabled() &&
+                ModConfig.CLIENT.MODS.SIMPLE_DIFFICULTY.SHOW_THIRST_DEBUG_INFO))
+        {
+            textEvent.getLeft().add("");
+            textEvent.getLeft().add(TextFormatting.YELLOW + "[" + Tags.MOD_NAME + "]");
+        }
 
         // Food debug info
         if (ModConfig.CLIENT.SHOW_FOOD_DEBUG_INFO)
