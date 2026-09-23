@@ -27,13 +27,6 @@ import ua.myxazaur.lemonskin.mixin.vanilla.GuiIngameAccessor;
 @Mixin(value = ExtraHeartRenderHandler.class, remap = false)
 public abstract class ExtraHeartRenderHandlerMixin
 {
-    @Unique
-    private int ls$cachedLeftHeight = 0;
-
-    @Inject(method = "renderHealthbar", at = @At("HEAD"))
-    private void ls$cacheLeftHeight(RenderGameOverlayEvent.Pre event, CallbackInfo ci) {
-        ls$cachedLeftHeight = GuiIngameForge.left_height;
-    }
 
     @Inject(
             method = "renderHealthbar",
@@ -45,7 +38,7 @@ public abstract class ExtraHeartRenderHandlerMixin
     )
     private void ls$onAfterHeartsRendered(
             RenderGameOverlayEvent.Pre event, CallbackInfo ci,
-            @Local(name = "player") EntityPlayer player
+            @Local(name = "player") EntityPlayer player, @Local(name = "top") int top
     ) {
         if (!ModConfig.CLIENT.MODS.MANTLE) return;
         if (player == null) return;
@@ -77,7 +70,6 @@ public abstract class ExtraHeartRenderHandlerMixin
         int height = resolution.getScaledHeight();
 
         int left = width / 2 - 91;
-        int top = height - ls$cachedLeftHeight;
 
         MantleHealthOverlayRenderer.drawHealthOverlay(
                 currentHealth, newHealth, mc, left, top,
