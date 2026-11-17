@@ -40,12 +40,12 @@ public class ThirstHelper
         return 0f;
     }
 
-    public static boolean canDrink(EntityPlayer player)
-    {
-        if (LemonSkin.hasSimpleDifficulty)
-            return SimpleDifficultyHelper.canDrink(player);
-        return false;
-    }
+    public static boolean canDrink(EntityPlayer player, ItemStack stack)
+	{
+		if (LemonSkin.hasSimpleDifficulty)
+			return SimpleDifficultyHelper.canDrink(player, stack);
+		return false;
+	}
 
     public static boolean isDrink(ItemStack stack)
     {

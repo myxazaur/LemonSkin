@@ -67,7 +67,7 @@ public class ThirstTooltipHandler
         if (!ModConfig.CLIENT.USE_MODERN_TOOLTIP) return;
 
         SimpleDifficultyHelper.DrinkValues values = SimpleDifficultyHelper.getDrinkValues(stack);
-        if (values == null || values.thirst <= 0) return;
+        if(values == null || (values.thirst == 0 && !values.isDirty())) return;
 
         tooltip.add("\u00A0");
         tooltip.add("\u00A0");
@@ -102,7 +102,7 @@ public class ThirstTooltipHandler
         if (gui == null) return;
 
         SimpleDifficultyHelper.DrinkValues values = SimpleDifficultyHelper.getDrinkValues(stack);
-        if (values == null || values.thirst <= 0) return;
+        if(values == null || (values.thirst == 0 && !values.isDirty())) return;
 
         if (ModConfig.CLIENT.USE_MODERN_TOOLTIP)
             renderModern(event, stack, values);
@@ -143,12 +143,14 @@ public class ThirstTooltipHandler
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
         int thirst = values.thirst;
+        int displayThirst = Math.abs(thirst);
+		boolean negativeThirst = thirst < 0;
         float saturation = values.saturation;
         boolean isDirty = values.isDirty();
-        int thirstV = getThirstV(isDirty);
+        int thirstV = getThirstV(isDirty || negativeThirst);
 
         // Thirst icons
-        int thirstBars = (thirst + 1) / 2;
+        int thirstBars = (displayThirst + 1) / 2;
         String thirstText = null;
         if (thirstBars > 10)
         {
@@ -160,11 +162,11 @@ public class ThirstTooltipHandler
         for (int i = 0; i < thirstBars; i++)
         {
             int iconThirst = (i + 1) * 2;
-            if (thirst >= iconThirst)
+            if (displayThirst >= iconThirst)
             {
                 gui.drawTexturedModalRect(startX + i * 8, y, 37, thirstV, 8, 9);
             }
-            else if (thirst == iconThirst - 1)
+            else if (displayThirst == iconThirst - 1)
             {
                 gui.drawTexturedModalRect(startX + i * 8, y, 46, thirstV, 8, 9);
             }
@@ -235,11 +237,13 @@ public class ThirstTooltipHandler
         ScaledResolution res = new ScaledResolution(mc);
 
         int thirst = values.thirst;
+        int displayThirst = Math.abs(thirst);
+		boolean negativeThirst = thirst < 0;
         float saturation = values.saturation;
         boolean isDirty = values.isDirty();
-        int thirstV = getThirstV(isDirty);
+        int thirstV = getThirstV(isDirty || negativeThirst);
 
-        int lengthThirst = (thirst + 1) >> 1 << 3;
+        int lengthThirst = (displayThirst + 1) >> 1 << 3;
         int hydrationBars = saturation > 0 ? (int) Math.ceil(saturation / 2f) : 1;
         int lengthHydration = 2 + hydrationBars * 6;
         int length = Math.max(lengthThirst, lengthHydration);

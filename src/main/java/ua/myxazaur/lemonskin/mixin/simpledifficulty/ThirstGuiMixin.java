@@ -75,9 +75,9 @@ public abstract class ThirstGuiMixin
         if (!ThirstHelper.isDrink(held)) held = player.getHeldItemOffhand();
         if (!ThirstHelper.isDrink(held)) return;
 
-        if (!ThirstHelper.canDrink(player)) return;
-
         SimpleDifficultyHelper.DrinkValues values = SimpleDifficultyHelper.getDrinkValues(held);
+		if(values == null || (values.thirst == 0 && !values.isDirty())) return;
+		if(!ThirstHelper.canDrink(player, held)) return;
         if (values == null || values.thirst <= 0) return;
 
         int width = event.getResolution().getScaledWidth();
@@ -102,7 +102,7 @@ public abstract class ThirstGuiMixin
 
         // Draw predicted saturation overlay (only if SD draws saturation)
         if (ModConfig.CLIENT.MODS.SIMPLE_DIFFICULTY.SHOW_THIRST_SATURATION_OVERLAY &&
-                SimpleDifficultyHelper.shouldDrawSaturation())
+			SimpleDifficultyHelper.shouldDrawSaturation() && values.saturation > 0)
         {
             int newThirstValue = thirstLevel + values.thirst;
             float newSaturationValue = saturationLevel + values.saturation;

@@ -237,8 +237,8 @@ public class TooltipOverlayHandler
 		if (hasDrinkValues)
 		{
 			drinkValues = SimpleDifficultyHelper.getDrinkValues(stack);
-			if (drinkValues == null || drinkValues.thirst <= 0)
-				hasDrinkValues = false;
+			if (drinkValues == null || (drinkValues.thirst == 0 && !drinkValues.isDirty()))
+    hasDrinkValues = false;
 		}
 
 		int biggestHunger   = Math.max(base.hunger, actual.hunger);
@@ -260,7 +260,7 @@ public class TooltipOverlayHandler
 		String hydrationText = null;
 		if (hasDrinkValues)
 		{
-			thirstBars = (drinkValues.thirst + 1) / 2;
+			thirstBars = (Math.abs(drinkValues.thirst) + 1) / 2;
 			if (thirstBars > 10)
 			{
 				thirstText = thirstBars + "x";

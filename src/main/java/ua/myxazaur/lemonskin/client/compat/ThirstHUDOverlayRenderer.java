@@ -49,11 +49,18 @@ public final class ThirstHUDOverlayRenderer
     {
         if (thirstRestored == 0) return;
 
-        int startBar = thirstLevel / 2;
-        int endBar = (int) Math.ceil(Math.min(20, thirstLevel + thirstRestored) / 2f);
-        int barsNeeded = endBar - startBar;
-
-        if (barsNeeded <= 0) return;
+		boolean loss = thirstRestored < 0;
+		int startBar, endBar;
+		if(!loss) {
+			startBar = thirstLevel / 2;
+			endBar = (int) Math.ceil(Math.min(20, thirstLevel + thirstRestored) / 2f);
+		} else {
+			int newLevel = Math.max(0, thirstLevel + thirstRestored);
+			startBar = newLevel / 2;
+			endBar = (int) Math.ceil(thirstLevel / 2f);
+		}
+		int barsNeeded = endBar - startBar;
+		if (barsNeeded <= 0) return;
 
         GlStateManager.disableDepth();
         GlStateManager.disableLighting();
@@ -80,7 +87,7 @@ public final class ThirstHUDOverlayRenderer
         }
 
         // Check if player has Thirsty effect OR drink is dirty
-        boolean hasThirstyEffect = ThirstHelper.hasThirstyEffect(mc.player) || isDirty;
+        boolean hasThirstyEffect = ThirstHelper.hasThirstyEffect(mc.player) || isDirty || loss;
 
         int xOffset = hasThirstyEffect ? (ICON_SIZE * 4) : 0;
         int bgXOffset = hasThirstyEffect ? (ICON_SIZE * 13) : 0;
@@ -108,6 +115,14 @@ public final class ThirstHUDOverlayRenderer
                 // Half droplet
                 mc.ingameGUI.drawTexturedModalRect(x, y, xOffset + (ICON_SIZE * 5), 0, ICON_SIZE, ICON_SIZE);
             }
+            
+            if(loss) {
+				mc.ingameGUI.drawTexturedModalRect(x, y, xOffset + (ICON_SIZE * 4), 0, ICON_SIZE, ICON_SIZE);
+			} else if(halfIcon < thirstLevel + thirstRestored) {
+				mc.ingameGUI.drawTexturedModalRect(x, y, xOffset + (ICON_SIZE * 4), 0, ICON_SIZE, ICON_SIZE);
+			} else if(halfIcon == thirstLevel + thirstRestored) {
+				mc.ingameGUI.drawTexturedModalRect(x, y, xOffset + (ICON_SIZE * 5), 0, ICON_SIZE, ICON_SIZE);
+			}
         }
 
         GlStateManager.disableBlend();
