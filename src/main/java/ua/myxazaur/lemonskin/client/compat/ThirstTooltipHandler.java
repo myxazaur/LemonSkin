@@ -102,7 +102,7 @@ public class ThirstTooltipHandler
         if (gui == null) return;
 
         SimpleDifficultyHelper.DrinkValues values = SimpleDifficultyHelper.getDrinkValues(stack);
-        if (values == null || values.thirst <= 0) return;
+        if (values == null) return;
 
         if (ModConfig.CLIENT.USE_MODERN_TOOLTIP)
             renderModern(event, stack, values);
