@@ -206,11 +206,14 @@ public class SimpleDifficultyHelper
         return cap != null ? cap.getThirstSaturation() : 0f;
     }
 
-    public static boolean canDrink(EntityPlayer player)
-    {
-        IThirstCapability cap = getThirstCapability(player);
-        return cap != null && cap.isThirsty();
-    }
+    public static boolean canDrink(EntityPlayer player, ItemStack stack)
+	{
+		IThirstCapability cap = getThirstCapability(player);
+		if(cap == null) return false;
+		if(cap.isThirsty()) return true;
+		DrinkValues v = getDrinkValues(stack);
+		return v != null && v.thirstyChance >= 0.999f;
+	}
 
     public static boolean useClassicHUD()
     {
