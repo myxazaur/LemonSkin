@@ -237,7 +237,7 @@ public class TooltipOverlayHandler
 		if (hasDrinkValues)
 		{
 			drinkValues = SimpleDifficultyHelper.getDrinkValues(stack);
-			if (drinkValues == null || drinkValues.thirst <= 0)
+			if (drinkValues == null) {
 				hasDrinkValues = false;
 		}
 
