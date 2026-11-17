@@ -145,26 +145,35 @@ public class ThirstTooltipHandler
         int thirst = values.thirst;
         float saturation = values.saturation;
         boolean isDirty = values.isDirty();
-        int thirstV = getThirstV(isDirty);
+
+        boolean negativeThirst = thirst < 0;
+        boolean negativeSat = saturation < 0;
+        int thirstMagnitude = Math.abs(thirst);
+        float satMagnitude = Math.abs(saturation);
+        int thirstV = getThirstV(isDirty || negativeThirst);
 
         // Thirst icons
-        int thirstBars = (thirst + 1) / 2;
+        int thirstBars = (thirstMagnitude + 1) / 2;
         String thirstText = null;
         if (thirstBars > 10)
         {
-            thirstText = "x" + thirstBars;
+            thirstText = (negativeThirst ? "-x" : "x") + thirstBars;
             thirstBars = 1;
+        }
+        else if (negativeThirst)
+        {
+            thirstText = "-";
         }
 
         int startX = x;
         for (int i = 0; i < thirstBars; i++)
         {
             int iconThirst = (i + 1) * 2;
-            if (thirst >= iconThirst)
+            if (thirstMagnitude >= iconThirst)
             {
                 gui.drawTexturedModalRect(startX + i * 8, y, 37, thirstV, 8, 9);
             }
-            else if (thirst == iconThirst - 1)
+            else if (thirstMagnitude == iconThirst - 1)
             {
                 gui.drawTexturedModalRect(startX + i * 8, y, 46, thirstV, 8, 9);
             }
@@ -185,19 +194,22 @@ public class ThirstTooltipHandler
         y += 10;
         startX = x;
 
-        int satBars = saturation > 0 ? (int) Math.ceil(saturation / 2f) : 1;
+        int satBars = satMagnitude > 0 ? (int) Math.ceil(satMagnitude / 2f) : 1;
         String satText = null;
         if (satBars > 10)
         {
-            satText = "x" + satBars;
+            satText = (negativeSat ? "-x" : "x") + satBars;
             satBars = 1;
+        }
+        else if (negativeSat)
+        {
+            satText = "-";
         }
 
         for (int i = 0; i < satBars; i++)
         {
             float iconSatStart = i * 2f;
-            float fillAmount = Math.max(0, Math.min(2f, saturation - iconSatStart));
-
+            float fillAmount = negativeSat ? 0f : Math.max(0, Math.min(2f, satMagnitude - iconSatStart));
             int u = getHydrationU(fillAmount);
             gui.drawTexturedModalRect(startX + i * 6, y, u, 27, 7, 7);
         }
@@ -237,11 +249,23 @@ public class ThirstTooltipHandler
         int thirst = values.thirst;
         float saturation = values.saturation;
         boolean isDirty = values.isDirty();
-        int thirstV = getThirstV(isDirty);
 
-        int lengthThirst = (thirst + 1) >> 1 << 3;
-        int hydrationBars = saturation > 0 ? (int) Math.ceil(saturation / 2f) : 1;
-        int lengthHydration = 2 + hydrationBars * 6;
+        // ✅ Negative handling
+        boolean negativeThirst = thirst < 0;
+        boolean negativeSat = saturation < 0;
+        int thirstMagnitude = Math.abs(thirst);
+        float satMagnitude = Math.abs(saturation);
+        int thirstV = getThirstV(isDirty || negativeThirst);
+
+        String thirstLabel = negativeThirst ? "-" : null;
+        String satLabel = negativeSat ? "-" : null;
+        int thirstLabelW = thirstLabel == null ? 0 : (int) (mc.fontRenderer.getStringWidth(thirstLabel) * 0.75f) + 2;
+        int satLabelW = satLabel == null ? 0 : (int) (mc.fontRenderer.getStringWidth(satLabel) * 0.75f) + 2;
+
+        int thirstBars = (thirstMagnitude + 1) >> 1;
+        int lengthThirst = (thirstBars << 3) + thirstLabelW;
+        int hydrationBars = satMagnitude > 0 ? (int) Math.ceil(satMagnitude / 2f) : 1;
+        int lengthHydration = 2 + hydrationBars * 6 + satLabelW;
         int length = Math.max(lengthThirst, lengthHydration);
 
         int baseX = event.getX();
@@ -264,24 +288,43 @@ public class ThirstTooltipHandler
         gui.drawTexturedModalRect(baseX + length + 2, baseY + 3, 88, 42, 3, 26);
 
         // Thirst droplets
-        for (int i = 0; i * 2 < thirst; i++)
+        for (int i = 0; i * 2 < thirstMagnitude; i++)
         {
-            if (thirst - i * 2 == 1)
+            if (thirstMagnitude - i * 2 == 1)
             {
                 gui.drawTexturedModalRect(baseX + 2 + i * 8, baseY + 7, 46, thirstV, 8, 9);
                 break;
             }
             gui.drawTexturedModalRect(baseX + 2 + i * 8, baseY + 7, 37, thirstV, 8, 9);
         }
+        if (thirstLabel != null)
+        {
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.75F, 0.75F, 0.75F);
+            mc.fontRenderer.drawStringWithShadow(thirstLabel,
+                    (baseX + 2 + thirstBars * 8 + 2) * 4f / 3f,
+                    (baseY + 7) * 4f / 3f + 2,
+                    0xFFDDDDDD);
+            GlStateManager.popMatrix();
+        }
 
-        // Hydration icons
+        // Hydration icons (empty when negative)
         for (int i = 0; i < hydrationBars; i++)
         {
             float iconSatStart = i * 2f;
-            float fillAmount = Math.max(0, Math.min(2f, saturation - iconSatStart));
-
+            float fillAmount = negativeSat ? 0f : Math.max(0, Math.min(2f, satMagnitude - iconSatStart));
             int u = getHydrationU(fillAmount);
             gui.drawTexturedModalRect(baseX + 2 + i * 6, baseY + 17, u, 27, 7, 7);
+        }
+        if (satLabel != null)
+        {
+            GlStateManager.pushMatrix();
+            GlStateManager.scale(0.75F, 0.75F, 0.75F);
+            mc.fontRenderer.drawStringWithShadow(satLabel,
+                    (baseX + 2 + hydrationBars * 6 + 2) * 4f / 3f,
+                    (baseY + 17) * 4f / 3f + 1,
+                    0xFFDDDDDD);
+            GlStateManager.popMatrix();
         }
 
         GlStateManager.disableBlend();
